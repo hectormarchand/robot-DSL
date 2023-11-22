@@ -1,6 +1,9 @@
 import { ValidationAcceptor, ValidationChecks } from "langium";
 import { RobotLanguageServices } from "./robot-language-module.js";
 import { RobotVisitor } from "./Visitor.js";
+import * as InterfacesAST from "./generated/ast.js";
+import * as ClassAST from "./Visitor.js";
+import { RobotLanguageAstType } from "./generated/ast.js";
 
 /**
  * Register custom validation checks.
@@ -18,12 +21,14 @@ export function weaveAcceptMethods(services: RobotLanguageServices) {
  * you will also need to fill the check data structure to map the weaving function to the Type of node
  */
 export class RoboMlAcceptWeaver {
-    weaveConcept(node : InterfaceAST.Concept, accept : ValidationAcceptor) : void{
-        (<any> node).accept = (visitor: RobotVisitor) => {return visitor.visitConcept(node as unknown as ClassAST.Concept);}
+    weaveArithmeticExpression(node : InterfacesAST.ArithmeticExpression, accept : ValidationAcceptor) : void{
+        (<any> node).accept = (visitor: RobotVisitor<InterfacesAST.ArithmeticExpression>) => {
+            return visitor.visitArithmeticExpression(node as unknown as ClassAST.ArithmeticExpression);
+        }
     }
 
-    checks: ValidationChecks<RoboMlAstType> = {
-        Concept : this.weaveConcept
+    checks: ValidationChecks<RobotLanguageAstType> = {
+        ArithmeticExpression : this.weaveArithmeticExpression
     };
 
 }
