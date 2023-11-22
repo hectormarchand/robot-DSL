@@ -33,7 +33,7 @@ VariableRedeclaration:
     variableName=[VariableDeclaration:ID] '=' expression=Expression;
 
 Expression:
-    ae=ArithmeticExpression | be=BooleanExpression;
+    ArithmeticExpression | BooleanExpression;
 
 VariableCall:
     variableCall=[VariableDeclaration:ID];
@@ -42,25 +42,39 @@ FunctionCall:
     function=[Fn:ID] '(' (args+=Expression (',' args+=Expression)*)? ')';
 
 SetSpeed:
-    'set_speed' speed=ArithmeticExpression;
+    'set_speed' speed=ArithmeticExpression unit=Unit;
 
 ArithmeticExpression:
-    term=Term | term=Term operator=('+' | '-') arithmeticExpression=ArithmeticExpression;
+    AdditionExpression;
 
-Term:
-    factor=Factor | factor=Factor operator=('*' | '/') term=Term;
+AdditionExpression:
+    MultiplicationExpression ({infer BinaryArithmeticExpression.left=current} operator=('+' | '-') right=MultiplicationExpression)*;
 
-Factor:
-    number=INT | "(" arithmeticExpression=ArithmeticExpression ")" | var=VariableCall | value=GetSensorValue;
+MultiplicationExpression:
+    PrimaryArithmeticExpression ({infer BinaryArithmeticExpression.left=current} operator=('*' | '/') right=PrimaryArithmeticExpression)*;
+
+PrimaryArithmeticExpression:
+    '(' ArithmeticExpression ')' |
+    value=INT |
+    {infer GetSensorValue} sensorValue=GetSensorValue |
+    func=FunctionCall |
+    variable=VariableCall;
 
 BooleanExpression:
-    bt=BooleanTerm | bt=BooleanTerm or='or' be=BooleanExpression; 
+    OrExpression;
 
-BooleanTerm:
-    bf=BooleanFactor | bf=BooleanFactor and='and' bt=BooleanTerm;
+OrExpression:
+    AndExpression ({infer BinaryBooleanExpression.left=current} operator='or' right=AndExpression)*;
 
-BooleanFactor:
-    not='not' bf=BooleanFactor | '(' be=BooleanExpression ')' | comparison=Comparison | constant=ConstantBooleanValue | var=VariableCall;
+AndExpression:
+    PrimaryBooleanExpression ({infer BinaryBooleanExpression.left=current} operator='and' right=PrimaryBooleanExpression)*;
+
+PrimaryBooleanExpression:
+    '(' BooleanExpression ')' |
+    value=ConstantBooleanValue |
+    func=FunctionCall |
+    variable=VariableCall |
+    {infer Comparison} comparison=Comparison;
 
 Comparison:
     ae1=ArithmeticExpression operator=RelationalOperator ae2=ArithmeticExpression;
