@@ -11,7 +11,7 @@ import { RobotLanguageAstType } from "./generated/ast.js";
  */
 export function weaveAcceptMethods(services: RobotLanguageServices) {
     const registry = services.validation.ValidationRegistry;
-    const weaver = services.validation.RoboMlAcceptWeaver;
+    const weaver = services.validation.RobotAcceptWeaver;
     registry.register(weaver.checks, weaver);
 }
 
@@ -20,7 +20,7 @@ export function weaveAcceptMethods(services: RobotLanguageServices) {
  * You must implement a weaving function for each concrete concept of the language.
  * you will also need to fill the check data structure to map the weaving function to the Type of node
  */
-export class RoboMlAcceptWeaver {
+export class RobotAcceptWeaver {
     weaveArithmeticExpression(node : InterfacesAST.ArithmeticExpression, accept : ValidationAcceptor) : void{
         (<any> node).accept = (visitor: RobotVisitor<InterfacesAST.ArithmeticExpression>) => {
             return visitor.visitArithmeticExpression(node as unknown as ClassAST.ArithmeticExpression);
