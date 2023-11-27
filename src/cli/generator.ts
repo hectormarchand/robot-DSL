@@ -18,3 +18,14 @@ export function generateJavaScript(model: Model, filePath: string, destination: 
     fs.writeFileSync(generatedFilePath, toString(fileNode));
     return generatedFilePath;
 }
+
+export function writeAst(model: Model, fileName: string): string {
+    const file = new CompositeGeneratorNode();
+    file.append("Generated Ast\n");
+    model.fn.forEach(func => file.append(func.name + " "));
+
+    const generatedFilePath = "/home/hector/Documents/ESIR3/ASE/TP/rob/examples/" + fileName;
+    fs.writeFileSync(generatedFilePath, toString(file));
+
+    return generatedFilePath;
+}
