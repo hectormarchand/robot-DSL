@@ -44,32 +44,32 @@ FunctionCall:
 SetSpeed:
     'set_speed' speed=ArithmeticExpression unit=Unit;
 
-ArithmeticExpression:
+ArithmeticExpression infers Expression:
     AdditionExpression;
 
-AdditionExpression:
+AdditionExpression infers Expression:
     MultiplicationExpression ({infer BinaryArithmeticExpression.left=current} operator=('+' | '-') right=MultiplicationExpression)*;
 
-MultiplicationExpression:
+MultiplicationExpression infers Expression:
     PrimaryArithmeticExpression ({infer BinaryArithmeticExpression.left=current} operator=('*' | '/') right=PrimaryArithmeticExpression)*;
 
-PrimaryArithmeticExpression:
+PrimaryArithmeticExpression infers Expression:
     '(' ArithmeticExpression ')' |
     value=INT |
     {infer GetSensorValue} sensorValue=GetSensorValue |
     func=FunctionCall |
     variable=VariableCall;
 
-BooleanExpression:
+BooleanExpression infers Expression:
     OrExpression;
 
-OrExpression:
+OrExpression infers Expression:
     AndExpression ({infer BinaryBooleanExpression.left=current} operator='or' right=AndExpression)*;
 
-AndExpression:
+AndExpression infers Expression:
     PrimaryBooleanExpression ({infer BinaryBooleanExpression.left=current} operator='and' right=PrimaryBooleanExpression)*;
 
-PrimaryBooleanExpression:
+PrimaryBooleanExpression infers Expression:
     '(' BooleanExpression ')' |
     value=ConstantBooleanValue |
     func=FunctionCall |
