@@ -1,8 +1,11 @@
-import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, Expression, Fn, GetSensorValue, GoBackward, GoForward, Loop, Model, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration } from "../visitor.js";
+import { AstNode } from "langium";
+import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, Expression, Fn, GetSensorValue, GoBackward, GoForward, Loop, Model, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class InterpreterVisitor implements RoboMLVisitor {
     visitBlock(node: Block) {
-        throw new Error("Method not implemented.");
+        for (let variable of node.variableDeclarations) {
+            acceptNode(variable, this);
+        }
     }
     visitExpression(node: Expression) {
         throw new Error("Method not implemented.");
@@ -55,5 +58,4 @@ export class InterpreterVisitor implements RoboMLVisitor {
     visitGetSensorValue(node: GetSensorValue) {
         throw new Error("Method not implemented.");
     }
-    
 }

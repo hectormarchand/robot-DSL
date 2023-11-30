@@ -1,5 +1,5 @@
 import * as ASTInterfaces from './generated/ast.js';
-import { Reference } from 'langium';
+import { AstNode, Reference } from 'langium';
 
 export interface RoboMLVisitor{
     visitBlock(node : Block): any;
@@ -469,5 +469,16 @@ export class GetSensorValue implements ASTInterfaces.GetSensorValue {
     accept(visitor: RoboMLVisitor): any {
         visitor.visitGetSensorValue(this);
     }
-    
+}
+
+
+export function acceptNode(node: AstNode, visitor: RoboMLVisitor): any {
+    switch (node.$type) {
+        case 'Block':
+            (node as Block).accept(visitor);
+            break;
+        case 'VariableDeclaration':
+            (node as VariableDeclaration).accept(visitor);
+            break;
+    }
 }
