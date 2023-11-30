@@ -1,9 +1,8 @@
-import { AstNode } from "langium";
 import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, Expression, Fn, GetSensorValue, GoBackward, GoForward, Loop, Model, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class InterpreterVisitor implements RoboMLVisitor {
     visitBlock(node: Block) {
-        for (let variable of node.variableDeclarations) {
+        for (let variable of node.statements) {
             acceptNode(variable, this);
         }
     }

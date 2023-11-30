@@ -40,25 +40,22 @@ export interface RoboMLVisitor{
 }
 
 export class Block implements ASTInterfaces.Block {
-    $container: ASTInterfaces.Condition | ASTInterfaces.Loop | ASTInterfaces.Fn;
+    $container: ASTInterfaces.Condition | ASTInterfaces.Fn | ASTInterfaces.Loop;
     $type: 'Block';
     statements: ASTInterfaces.Statement[];
-    variableDeclarations: ASTInterfaces.VariableDeclaration[];
-
-    constructor(
-        container: ASTInterfaces.Condition | ASTInterfaces.Loop | ASTInterfaces.Fn,
+    
+    constructor (
+        container: ASTInterfaces.Condition | ASTInterfaces.Fn | ASTInterfaces.Loop,
         statements: ASTInterfaces.Statement[],
-        variableDeclarations: ASTInterfaces.VariableDeclaration[]
     ) {
         this.$container = container;
-        this.$type = "Block";
         this.statements = statements;
-        this.variableDeclarations = variableDeclarations;
+        this.$type = "Block";
     }
 
     accept(visitor: RoboMLVisitor) : any {
         visitor.visitBlock(this);
-    } 
+    }     
 }
 
 export class Condition implements ASTInterfaces.Condition {

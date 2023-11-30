@@ -11,10 +11,10 @@ DeclaredParameter:
     name=ID;
 
 Block:
-    '{' (statements+=Statement | variableDeclarations+=VariableDeclaration)* '}';
+    '{' (statements+=Statement)* '}';
 
 Statement:
-    Expression | ControlStructure | SetSpeed | Mouvement | VariableRedeclaration | FunctionCall;
+    Expression | ControlStructure | SetSpeed | Mouvement | VariableRedeclaration | FunctionCall | VariableDeclaration;
 
 ControlStructure:
     Condition | Loop;
