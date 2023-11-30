@@ -474,8 +474,55 @@ export function acceptNode(node: AstNode, visitor: RoboMLVisitor): any {
         case 'Block':
             (node as Block).accept(visitor);
             break;
+        case 'Expression':
+            (node as Expression).accept(visitor);
+            break;
         case 'VariableDeclaration':
             (node as VariableDeclaration).accept(visitor);
             break;
+        case 'VariableRedeclaration':
+            (node as VariableRedeclaration).accept(visitor);
+            break;
+        case 'VariableCall':
+            (node as VariableCall).accept(visitor);
+            break;
+        case 'Fn':
+            (node as Fn).accept(visitor);
+            break;
+        case 'Condition':
+            (node as Condition).accept(visitor);
+            break;
+        case 'Loop':
+            (node as Loop).accept(visitor);
+            break;
+        case 'GoForward':
+            (node as GoForward).accept(visitor);
+            break;
+        case 'GoBackward':
+            (node as GoBackward).accept(visitor);
+            break;
+        case 'TurnLeft':
+            (node as TurnLeft).accept(visitor);
+            break;
+        case 'TurnRight':
+            (node as TurnRight).accept(visitor);
+            break;
+        case 'SetSpeed':
+            (node as SetSpeed).accept(visitor);
+            break;
+        case 'BinaryArithmeticExpression':
+            (node as BinaryArithmeticExpression).accept(visitor);
+            break;
+        case 'BinaryBooleanExpression':
+            (node as BinaryBooleanExpression).accept(visitor);
+            break;
+        case 'Comparison':
+            (node as Comparison).accept(visitor);
+            break;
+        case 'GetSensorValue':
+            (node as GetSensorValue).accept(visitor);
+            break;
+            
+        
     }
 }

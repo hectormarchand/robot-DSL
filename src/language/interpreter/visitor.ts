@@ -7,12 +7,14 @@ export class InterpreterVisitor implements RoboMLVisitor {
         }
     }
     visitExpression(node: Expression) {
-        throw new Error("Method not implemented.");
+        acceptNode(node, this);
     }
     visitFn(node: Fn) {
         throw new Error("Method not implemented.");
     }
     visitCondition(node: Condition) {
+        acceptNode(node.be,this);
+        acceptNode(node.block,this);
         throw new Error("Method not implemented.");
     }
     visitGoBackward(node: GoBackward) {
@@ -22,10 +24,14 @@ export class InterpreterVisitor implements RoboMLVisitor {
         throw new Error("Method not implemented.");
     }
     visitLoop(node: Loop) {
+        acceptNode(node.be,this);
+        acceptNode(node.block,this);
         throw new Error("Method not implemented.");
     }
     visitModel(node: Model) {
-        throw new Error("Method not implemented.");
+        for (let fn of node.fn) {
+            acceptNode(fn, this);
+        }
     }
     visitSetSpeed(node: SetSpeed) {
         throw new Error("Method not implemented.");
