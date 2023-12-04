@@ -22,7 +22,7 @@ export function weaveAcceptMethods(services: RobotLanguageServices) {
  */
 export class RoboMlAcceptWeaver {
     weaveBlock(node: InterfaceAST.Block, accept: ValidationAcceptor) : void {
-        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitBlock(node as unknown as ClassAST.Block);}
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitBlock(node as unknown as ClassAST.Block );}
     }
 
     weaveExpression(node: InterfaceAST.Expression, accept: ValidationAcceptor) : void {
@@ -31,6 +31,10 @@ export class RoboMlAcceptWeaver {
 
     weaveFn(node: InterfaceAST.Fn, accept: ValidationAcceptor) : void {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitFn(node as unknown as ClassAST.Fn);}
+    }
+
+    weaveFunctionCall(node: InterfaceAST.FunctionCall, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitFunctionCall(node as unknown as ClassAST.FunctionCall);}
     }
 
     weaveCondition(node: InterfaceAST.Condition, accept: ValidationAcceptor) : void {
@@ -93,10 +97,20 @@ export class RoboMlAcceptWeaver {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitGetSensorValue(node as unknown as ClassAST.GetSensorValue);}
     }
 
+    weavePrint(node: InterfaceAST.Print, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitPrint(node as unknown as ClassAST.Print);}
+    }
+
+    weaveConstantBooleanValue(node: InterfaceAST.ConstantBooleanValue, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitConstantBooleanValue(node as unknown as ClassAST.ConstantBooleanValue);}
+    }
+
+
     checks: ValidationChecks<RobotLanguageAstType> = {
         Block: this.weaveBlock,
         Expression: this.weaveExpression,
         Fn: this.weaveFn,
+        FunctionCall: this.weaveFunctionCall,
         Condition: this.weaveCondition,
         GoBackward: this.weaveGoBackward,
         GoForward: this.weaveGoForward,
@@ -111,7 +125,9 @@ export class RoboMlAcceptWeaver {
         BinaryArithmeticExpression: this.weaveBinaryArithmeticExpression,
         BinaryBooleanExpression: this.weaveBinaryBooleanExpression,
         Comparison: this.weaveComparison,
-        GetSensorValue: this.weaveGetSensorValue
+        GetSensorValue: this.weaveGetSensorValue,
+        Print: this.weavePrint,
+        ConstantBooleanValue: this.weaveConstantBooleanValue
     };
 
 }

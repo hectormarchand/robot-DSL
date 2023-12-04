@@ -6,6 +6,7 @@ import { createRobotLanguageServices } from '../language/robot-language-module.j
 import { extractAstNode } from './cli-util.js';
 import { generateJavaScript, writeAst } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
+import { interpret } from '../semantic/interpreter.js';
 
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
@@ -21,6 +22,11 @@ export const generateAST = async (fileName: string): Promise<void> => {
     console.log(chalk.green(`JavaScript code generated successfully: ${generatedFilePath}`));
 }
 
+export const visitFile = async (fileName: string): Promise<void> => {
+    const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
+    const model = await extractAstNode<Model>(fileName, services);
+    interpret(model);
+}
 export type GenerateOptions = {
     destination?: string;
 }
@@ -38,6 +44,12 @@ export default function(): void {
         .argument('<file>', `Source file ending in ${fileExtensions}`)
         .description('Command to generate the AST of a source file')
         .action(generateAST);
+
+    program
+        .command("visitFile")
+        .argument('<file>', `Source file ending in ${fileExtensions}`)
+        .description('Command to generate the AST of a source file')
+        .action(visitFile)
 
     program.parse(process.argv);
 }

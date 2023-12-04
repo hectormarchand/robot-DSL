@@ -1,8 +1,9 @@
-import { Model } from  "../language/visitor.js";
+import { Model } from "../language/generated/ast.js";
+import { Model as VisitorModel }  from "../language/visitor.js";
 import { InterpreterVisitor } from "../language/interpreter/visitor.js";
 
 export function interpret(model: Model): void {
-    console.log("Interpreting model");
     const visitor = new InterpreterVisitor();
-    visitor.visitModel(model);
+    const visitorModel: VisitorModel = new VisitorModel(model.fn);
+    visitorModel.accept(visitor);
 }

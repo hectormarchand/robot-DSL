@@ -2,7 +2,7 @@ import type { DefaultSharedModuleContext, LangiumServices, LangiumSharedServices
 import { createDefaultModule, createDefaultSharedModule, inject } from 'langium';
 import { RobotLanguageGeneratedModule, RobotLanguageGeneratedSharedModule } from './generated/module.js';
 import { RobotLanguageValidator, registerValidationChecks } from './robot-language-validator.js';
-import { RoboMlAcceptWeaver } from './accept-weaver.js';
+import { RoboMlAcceptWeaver, weaveAcceptMethods } from './accept-weaver.js';
 
 /**
  * Declaration of custom services - add your own service classes here.
@@ -62,5 +62,6 @@ export function createRobotLanguageServices(context: DefaultSharedModuleContext)
     );
     shared.ServiceRegistry.register(RobotLanguage);
     registerValidationChecks(RobotLanguage);
+    weaveAcceptMethods(RobotLanguage);
     return { shared, RobotLanguage };
 }

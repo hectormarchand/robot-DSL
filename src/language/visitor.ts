@@ -1,12 +1,14 @@
 import * as ASTInterfaces from './generated/ast.js';
 import { AstNode, Reference } from 'langium';
 
-export interface RoboMLVisitor{
-    visitBlock(node : Block): any;
+export interface RoboMLVisitor {
+    visitBlock(node: Block): any;
 
-    visitExpression(node : Expression): any;
+    visitExpression(node: Expression): any;
 
     visitFn(node: Fn): any;
+
+    visitFunctionCall(node: FunctionCall): any;
 
     visitCondition(node: Condition): any;
 
@@ -37,14 +39,18 @@ export interface RoboMLVisitor{
     visitComparison(node: Comparison): any;
 
     visitGetSensorValue(node: GetSensorValue): any;
+
+    visitPrint(node: Print): any;
+
+    visitConstantBooleanValue(node: ConstantBooleanValue): any;
 }
 
 export class Block implements ASTInterfaces.Block {
     $container: ASTInterfaces.Condition | ASTInterfaces.Fn | ASTInterfaces.Loop;
     $type: 'Block';
     statements: ASTInterfaces.Statement[];
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Condition | ASTInterfaces.Fn | ASTInterfaces.Loop,
         statements: ASTInterfaces.Statement[],
     ) {
@@ -53,9 +59,9 @@ export class Block implements ASTInterfaces.Block {
         this.$type = "Block";
     }
 
-    accept(visitor: RoboMLVisitor) : any {
-        visitor.visitBlock(this);
-    }     
+    accept(visitor: RoboMLVisitor): any {
+        return visitor.visitBlock(this);
+    }
 }
 
 export class Condition implements ASTInterfaces.Condition {
@@ -63,7 +69,7 @@ export class Condition implements ASTInterfaces.Condition {
     $type: 'Condition';
     be: ASTInterfaces.Expression; // boolean expression
     block: ASTInterfaces.Block;
-    
+
     constructor(
         container: ASTInterfaces.Block,
         be: ASTInterfaces.Expression,
@@ -76,31 +82,34 @@ export class Condition implements ASTInterfaces.Condition {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitCondition(this);
+        return visitor.visitCondition(this);
     }
 }
 
 export class Expression implements ASTInterfaces.Expression {
-    $type: 'BinaryArithmeticExpression' | 'BinaryBooleanExpression' | 'Comparison' | 'Expression' | 'GetSensorValue';
     func: ASTInterfaces.FunctionCall;
+    $type: 'BinaryArithmeticExpression' | 'BinaryBooleanExpression' | 'Expression' | 'GetSensorValue';
+    comparison: ASTInterfaces.Comparison;
     value: number | ASTInterfaces.ConstantBooleanValue;
     variable: ASTInterfaces.VariableCall;
-   
+
     constructor(
-        type: 'BinaryArithmeticExpression' | 'BinaryBooleanExpression' | 'Comparison' | 'Expression' | 'GetSensorValue',
+        type: 'BinaryArithmeticExpression' | 'BinaryBooleanExpression' | 'Expression' | 'GetSensorValue',
         func: ASTInterfaces.FunctionCall,
+        comparison: ASTInterfaces.Comparison,
         value: number | ASTInterfaces.ConstantBooleanValue,
         variable: ASTInterfaces.VariableCall
     ) {
         this.$type = type;
         this.func = func;
+        this.comparison = comparison;
         this.value = value;
         this.variable = variable;
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitExpression(this);
-    } 
+        return visitor.visitExpression(this);
+    }
 }
 
 export class Fn implements ASTInterfaces.Fn {
@@ -109,23 +118,44 @@ export class Fn implements ASTInterfaces.Fn {
     args: ASTInterfaces.DeclaredParameter[];
     block: ASTInterfaces.Block;
     name: string;
-   
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Model,
-        type: 'Fn',
         args: ASTInterfaces.DeclaredParameter[],
         block: ASTInterfaces.Block,
         name: string
     ) {
         this.$container = container;
-        this.$type = type;
+        this.$type = 'Fn';
         this.args = args;
         this.block = block;
         this.name = name;
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitFn(this);
+        return visitor.visitFn(this);
+    }
+}
+
+export class FunctionCall implements ASTInterfaces.FunctionCall {
+    $container: ASTInterfaces.Block;
+    $type: 'FunctionCall';
+    args: ASTInterfaces.Expression[];
+    functionName: Reference<ASTInterfaces.Fn>;
+    
+    constructor(
+        container: ASTInterfaces.Block,
+        args: ASTInterfaces.Expression[],
+        functionName: Reference<ASTInterfaces.Fn>
+    ) {
+        this.$container = container;
+        this.$type = "FunctionCall";
+        this.args = args;
+        this.functionName = functionName;
+    }
+    
+    accept(visitor: RoboMLVisitor): any {
+        return visitor.visitFunctionCall(this);
     }
 }
 
@@ -134,8 +164,8 @@ export class GoBackward implements ASTInterfaces.GoBackward {
     $type: 'GoBackward';
     distance: ASTInterfaces.Expression;
     unit: ASTInterfaces.Unit;
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Block,
         distance: ASTInterfaces.Expression,
         unit: ASTInterfaces.Unit,
@@ -147,7 +177,7 @@ export class GoBackward implements ASTInterfaces.GoBackward {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitGoBackward(this);
+        return visitor.visitGoBackward(this);
     }
 }
 
@@ -156,8 +186,8 @@ export class GoForward implements ASTInterfaces.GoForward {
     $type: 'GoForward';
     distance: ASTInterfaces.Expression;
     unit: ASTInterfaces.Unit;
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Block,
         distance: ASTInterfaces.Expression,
         unit: ASTInterfaces.Unit,
@@ -169,7 +199,7 @@ export class GoForward implements ASTInterfaces.GoForward {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitGoForward(this);
+        return visitor.visitGoForward(this);
     }
 }
 
@@ -178,7 +208,7 @@ export class Loop implements ASTInterfaces.Loop {
     $type: 'Loop';
     be: ASTInterfaces.Expression;
     block: ASTInterfaces.Block;
-    
+
     constructor(
         container: ASTInterfaces.Block,
         be: ASTInterfaces.Expression,
@@ -191,15 +221,15 @@ export class Loop implements ASTInterfaces.Loop {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitLoop(this);
+        return visitor.visitLoop(this);
     }
 }
 
 export class Model implements ASTInterfaces.Model {
     $type: 'Model';
     fn: ASTInterfaces.Fn[];
-    
-    constructor (
+
+    constructor(
         fn: ASTInterfaces.Fn[]
     ) {
         this.$type = "Model";
@@ -207,7 +237,7 @@ export class Model implements ASTInterfaces.Model {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitModel(this);
+        return visitor.visitModel(this);
     }
 }
 
@@ -216,8 +246,8 @@ export class SetSpeed implements ASTInterfaces.SetSpeed {
     $type: 'SetSpeed';
     speed: ASTInterfaces.Expression;
     unit: ASTInterfaces.Unit;
-   
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Block,
         speed: ASTInterfaces.Expression,
         unit: ASTInterfaces.Unit
@@ -227,9 +257,9 @@ export class SetSpeed implements ASTInterfaces.SetSpeed {
         this.speed = speed;
         this.unit = unit;
     }
-    
+
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitSetSpeed(this);
+        return visitor.visitSetSpeed(this);
     }
 }
 
@@ -237,8 +267,8 @@ export class TurnLeft implements ASTInterfaces.TurnLeft {
     $container: ASTInterfaces.Block;
     $type: 'TurnLeft';
     angle: ASTInterfaces.Expression;
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Block,
         angle: ASTInterfaces.Expression
     ) {
@@ -248,7 +278,7 @@ export class TurnLeft implements ASTInterfaces.TurnLeft {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitTurnLeft(this);
+        return visitor.visitTurnLeft(this);
     }
 }
 
@@ -256,8 +286,8 @@ export class TurnRight implements ASTInterfaces.TurnRight {
     $container: ASTInterfaces.Block;
     $type: 'TurnRight';
     angle: ASTInterfaces.Expression;
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Block,
         angle: ASTInterfaces.Expression
     ) {
@@ -267,7 +297,7 @@ export class TurnRight implements ASTInterfaces.TurnRight {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitTurnRight(this);
+        return visitor.visitTurnRight(this);
     }
 }
 
@@ -275,8 +305,8 @@ export class VariableCall implements ASTInterfaces.VariableCall {
     $container: ASTInterfaces.Expression;
     $type: 'VariableCall';
     variableCall: Reference<ASTInterfaces.VariableDeclaration>;
-    
-    constructor (
+
+    constructor(
         container: ASTInterfaces.Expression,
         variableCall: Reference<ASTInterfaces.VariableDeclaration>
     ) {
@@ -286,7 +316,7 @@ export class VariableCall implements ASTInterfaces.VariableCall {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitVariableCall(this);
+        return visitor.visitVariableCall(this);
     }
 }
 
@@ -296,7 +326,7 @@ export class VariableDeclaration implements ASTInterfaces.VariableDeclaration {
     expression: ASTInterfaces.Expression;
     name: string;
 
-    constructor (
+    constructor(
         container: ASTInterfaces.Block,
         expression: ASTInterfaces.Expression,
         name: string
@@ -308,7 +338,7 @@ export class VariableDeclaration implements ASTInterfaces.VariableDeclaration {
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitVariableDeclaration(this);
+        return visitor.visitVariableDeclaration(this);
     }
 }
 
@@ -318,7 +348,7 @@ export class VariableRedeclaration implements ASTInterfaces.VariableRedeclaratio
     expression: ASTInterfaces.Expression;
     variableName: Reference<VariableDeclaration>;
 
-    constructor (
+    constructor(
         container: ASTInterfaces.Block,
         expression: ASTInterfaces.Expression,
         name: Reference<VariableDeclaration>
@@ -330,7 +360,7 @@ export class VariableRedeclaration implements ASTInterfaces.VariableRedeclaratio
     }
 
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitVariableRedeclaration(this);
+        return visitor.visitVariableRedeclaration(this);
     }
 }
 
@@ -342,14 +372,16 @@ export class BinaryArithmeticExpression implements ASTInterfaces.BinaryArithmeti
     func: ASTInterfaces.FunctionCall;
     value: number | ASTInterfaces.ConstantBooleanValue;
     variable: ASTInterfaces.VariableCall;
-    
-    constructor (
+    comparison: ASTInterfaces.Comparison;
+
+    constructor(
         left: ASTInterfaces.Expression,
         operator: '*' | '+' | '-' | '/',
         right: ASTInterfaces.Expression,
         func: ASTInterfaces.FunctionCall,
         value: number | ASTInterfaces.ConstantBooleanValue,
-        variable: ASTInterfaces.VariableCall
+        variable: ASTInterfaces.VariableCall,
+        comparison: ASTInterfaces.Comparison
     ) {
         this.$type = "BinaryArithmeticExpression";
         this.left = left;
@@ -358,10 +390,11 @@ export class BinaryArithmeticExpression implements ASTInterfaces.BinaryArithmeti
         this.func = func;
         this.value = value;
         this.variable = variable;
+        this.comparison = comparison;
     }
-    
+
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitBinaryArithmeticExpression(this);
+        return visitor.visitBinaryArithmeticExpression(this);
     }
 }
 
@@ -373,14 +406,16 @@ export class BinaryBooleanExpression implements ASTInterfaces.BinaryBooleanExpre
     func: ASTInterfaces.FunctionCall;
     value: number | ASTInterfaces.ConstantBooleanValue;
     variable: ASTInterfaces.VariableCall;
-    
-    constructor (
+    comparison: ASTInterfaces.Comparison;
+
+    constructor(
         left: ASTInterfaces.Expression,
         operator: 'and' | 'or',
         right: ASTInterfaces.Expression,
         func: ASTInterfaces.FunctionCall,
         value: number | ASTInterfaces.ConstantBooleanValue,
-        variable: ASTInterfaces.VariableCall
+        variable: ASTInterfaces.VariableCall,
+        comparison: ASTInterfaces.Comparison
     ) {
         this.$type = "BinaryBooleanExpression";
         this.left = left;
@@ -389,45 +424,37 @@ export class BinaryBooleanExpression implements ASTInterfaces.BinaryBooleanExpre
         this.func = func;
         this.value = value;
         this.variable = variable;
+        this.comparison = comparison;
     }
-    
-    
+
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitBinaryBooleanExpression(this);
+        return visitor.visitBinaryBooleanExpression(this);
     }
 }
 
 export class Comparison implements ASTInterfaces.Comparison {
-    $container: ASTInterfaces.Comparison;
+    $container: ASTInterfaces.Expression;
     $type: 'Comparison';
-    ae1?: ASTInterfaces.Expression | undefined;
-    ae2?: ASTInterfaces.Expression | undefined;
-    operator?: ASTInterfaces.RelationalOperator | undefined;
-    func: ASTInterfaces.FunctionCall;
-    value: number | ASTInterfaces.ConstantBooleanValue;
-    variable: ASTInterfaces.VariableCall;
-
-    constructor(
-        container: ASTInterfaces.Comparison,
-        func: ASTInterfaces.FunctionCall,
-        value: number | ASTInterfaces.ConstantBooleanValue,
-        variable: ASTInterfaces.VariableCall,
-        ae1?: ASTInterfaces.Expression | undefined,
-        ae2?: ASTInterfaces.Expression | undefined,
-        operator?: ASTInterfaces.RelationalOperator | undefined
+    left: ASTInterfaces.Expression;
+    right: ASTInterfaces.Expression;
+    operator: ASTInterfaces.RelationalOperator;
+    
+    constructor (
+        container: ASTInterfaces.Expression,
+        left: ASTInterfaces.Expression,
+        right: ASTInterfaces.Expression,
+        operator: ASTInterfaces.RelationalOperator
     ) {
         this.$container = container;
         this.$type = "Comparison";
-        this.ae1 = ae1;
-        this.ae2 = ae2;
+        this.left = left;
+        this.right = right;
         this.operator = operator;
-        this.func = func;
-        this.value = value;
-        this.variable = variable;
     }
-        
+   
+
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitComparison(this);
+        return visitor.visitComparison(this);
     }
 }
 
@@ -441,12 +468,14 @@ export class GetSensorValue implements ASTInterfaces.GetSensorValue {
     func: ASTInterfaces.FunctionCall;
     value: number | ASTInterfaces.ConstantBooleanValue;
     variable: ASTInterfaces.VariableCall;
+    comparison: ASTInterfaces.Comparison;
 
-    constructor (
+    constructor(
         container: ASTInterfaces.GetSensorValue,
         func: ASTInterfaces.FunctionCall,
         value: number | ASTInterfaces.ConstantBooleanValue,
         variable: ASTInterfaces.VariableCall,
+        comparison: ASTInterfaces.Comparison,
         distance?: 'get_distance' | undefined,
         sensorValue?: ASTInterfaces.GetSensorValue | undefined,
         speed?: 'get_speed' | undefined,
@@ -457,72 +486,104 @@ export class GetSensorValue implements ASTInterfaces.GetSensorValue {
         this.func = func;
         this.value = value;
         this.variable = variable;
+        this.comparison = comparison;
         this.distance = distance;
         this.sensorValue = sensorValue;
         this.speed = speed;
         this.timestamp = timestamp
     }
-    
+
     accept(visitor: RoboMLVisitor): any {
-        visitor.visitGetSensorValue(this);
+        return visitor.visitGetSensorValue(this);
+    }
+}
+
+export class Print implements ASTInterfaces.Print {
+    $container: ASTInterfaces.Block;
+    $type: 'Print';
+    expression?: ASTInterfaces.Expression | undefined;
+    str?: string | undefined;
+
+    constructor(
+        container: ASTInterfaces.Block,
+        expression?: ASTInterfaces.Expression | undefined,
+        str?: string | undefined
+    ) {
+        this.$container = container;
+        this.$type = "Print";
+        this.expression = expression;
+        this.str = str;
+    }
+
+    accept(visitor: RoboMLVisitor): any {
+        return visitor.visitPrint(this);
+    }
+}
+
+export class ConstantBooleanValue implements ASTInterfaces.ConstantBooleanValue {
+    $container: ASTInterfaces.Expression;
+    $type: 'ConstantBooleanValue';
+    booleanValue: 'false' | 'true';
+
+    constructor(
+        container: ASTInterfaces.Expression,
+        booleanValue: 'false' | 'true'
+    ) {
+        this.$container = container;
+        this.$type = "ConstantBooleanValue";
+        this.booleanValue = booleanValue;
+    }
+
+    accept(visitor: RoboMLVisitor): any {
+        return visitor.visitConstantBooleanValue(this);
     }
 }
 
 
 export function acceptNode(node: AstNode, visitor: RoboMLVisitor): any {
+    console.log("-->", node.$type);
     switch (node.$type) {
         case 'Block':
-            (node as Block).accept(visitor);
-            break;
+            return (node as Block).accept(visitor);
         case 'Expression':
-            (node as Expression).accept(visitor);
-            break;
+            return (node as Expression).accept(visitor);
         case 'VariableDeclaration':
-            (node as VariableDeclaration).accept(visitor);
-            break;
+            return (node as VariableDeclaration).accept(visitor);
         case 'VariableRedeclaration':
-            (node as VariableRedeclaration).accept(visitor);
-            break;
+            return (node as VariableRedeclaration).accept(visitor);
         case 'VariableCall':
-            (node as VariableCall).accept(visitor);
-            break;
+            return (node as VariableCall).accept(visitor);
         case 'Fn':
-            (node as Fn).accept(visitor);
-            break;
+            return (node as Fn).accept(visitor);
+        case 'FunctionCall':
+            return (node as FunctionCall).accept(visitor);
         case 'Condition':
-            (node as Condition).accept(visitor);
-            break;
+            return (node as Condition).accept(visitor);
         case 'Loop':
-            (node as Loop).accept(visitor);
-            break;
+            return (node as Loop).accept(visitor);
         case 'GoForward':
-            (node as GoForward).accept(visitor);
-            break;
+            return (node as GoForward).accept(visitor);
         case 'GoBackward':
-            (node as GoBackward).accept(visitor);
-            break;
+            return (node as GoBackward).accept(visitor);
         case 'TurnLeft':
-            (node as TurnLeft).accept(visitor);
-            break;
+            return (node as TurnLeft).accept(visitor);
         case 'TurnRight':
-            (node as TurnRight).accept(visitor);
-            break;
+            return (node as TurnRight).accept(visitor);
         case 'SetSpeed':
-            (node as SetSpeed).accept(visitor);
-            break;
+            return (node as SetSpeed).accept(visitor);
         case 'BinaryArithmeticExpression':
-            (node as BinaryArithmeticExpression).accept(visitor);
-            break;
+            return (node as BinaryArithmeticExpression).accept(visitor);
         case 'BinaryBooleanExpression':
-            (node as BinaryBooleanExpression).accept(visitor);
-            break;
+            return (node as BinaryBooleanExpression).accept(visitor);
         case 'Comparison':
-            (node as Comparison).accept(visitor);
-            break;
+            return (node as Comparison).accept(visitor);
         case 'GetSensorValue':
-            (node as GetSensorValue).accept(visitor);
-            break;
-            
-        
+            return (node as GetSensorValue).accept(visitor);
+        case 'Print':
+            return (node as Print).accept(visitor);
+        case 'ConstantBooleanValue':
+            return (node as ConstantBooleanValue).accept(visitor);
+        default:
+            throw new Error("node not implemented");
     }
 }

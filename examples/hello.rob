@@ -1,56 +1,30 @@
+// def entry() {
+//     set_speed 10 cm
+//     print get_speed
+//     square()
+//     print get_speed
+// }
+
+// def square() {
+//     forward 1 m
+//     turn_left 90
+//     forward 1 m
+//     turn_left 90
+//     forward 1 m
+//     turn_left 90
+//     forward 1 m
+//     turn_left 90
+// }
+
 def entry() {
-    var v1 = 4 * 7 + 4 /6 
-    var v2 = v1 + get_distance
-    var v3 = v1 + v2
-
-    if v1 == v2 and true or (false and v1 > v2) {
-        loop true {
-            var v2 = get_speed
-            v2 = v2 + 1
-        }
-    }
-    square()
-}
-
-def square() {
-    var cote = 1
-    loop cote <= 4 {
-        turn_right 90
+    set_speed 10 cm
+    var v1 = 1
+    
+    loop v1 < 100 {
         forward 1 m
+        turn_left 90
+        print v1
+        v1 = v1 + 58
     }
-}
-
-
-def entryyyy () {
-    set_speed 150 mm // distance per second (here 150mm/s)
-    var  count = 0
-    loop count < 5
-    {	
-        count = count + 1
-        square1()
-    }
-}
-
-def square1(){
-    forward 30 cm
-    turn_right 90
-    forward 300 mm
-    turn_right 90
-    forward 30 cm
-    turn_right 90
-    forward 300 mm
-    turn_right 90
-}
-
-
-def entry () {
-    set_speed 200 mm // distance per second (here 200mm/s)
-    var time = get_timestamp
-    loop time < 60000
-    {
-        var dist = get_distance
-        forward dist - 25 mm
-        turn_right 90
-        time = get_timestamp
-    }
+    print "fin"
 }

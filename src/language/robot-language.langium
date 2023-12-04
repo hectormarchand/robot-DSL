@@ -14,7 +14,7 @@ Block:
     '{' (statements+=Statement)* '}';
 
 Statement:
-    Expression | ControlStructure | SetSpeed | Mouvement | VariableRedeclaration | FunctionCall | VariableDeclaration;
+    Expression | ControlStructure | SetSpeed | Mouvement | VariableRedeclaration | FunctionCall | VariableDeclaration | Print;
 
 ControlStructure:
     Condition | Loop;
@@ -39,10 +39,13 @@ VariableCall:
     variableCall=[VariableDeclaration:ID];
 
 FunctionCall:
-    function=[Fn:ID] '(' (args+=Expression (',' args+=Expression)*)? ')';
+    functionName=[Fn:ID] '(' (args+=Expression (',' args+=Expression)*)? ')';
 
 SetSpeed:
     'set_speed' speed=ArithmeticExpression unit=Unit;
+
+Print:
+    'print' (expression=Expression | str=STRING);
 
 ArithmeticExpression infers Expression:
     AdditionExpression;
@@ -57,7 +60,6 @@ PrimaryArithmeticExpression infers Expression:
     '(' ArithmeticExpression ')' |
     value=INT |
     {infer GetSensorValue} sensorValue=GetSensorValue |
-    func=FunctionCall |
     variable=VariableCall;
 
 BooleanExpression infers Expression:
@@ -72,18 +74,17 @@ AndExpression infers Expression:
 PrimaryBooleanExpression infers Expression:
     '(' BooleanExpression ')' |
     value=ConstantBooleanValue |
-    func=FunctionCall |
     variable=VariableCall |
-    {infer Comparison} comparison=Comparison;
+    comparison=Comparison;
 
 Comparison:
-    ae1=ArithmeticExpression operator=RelationalOperator ae2=ArithmeticExpression;
+    left=ArithmeticExpression operator=RelationalOperator right=ArithmeticExpression;
 
 RelationalOperator returns string:
     '==' | '!=' | '>' | '<' | '>=' | '<=';
 
-ConstantBooleanValue returns string:
-    'true' | 'false';
+ConstantBooleanValue:
+    booleanValue=('true' | 'false');
 
 Mouvement:
     GoForward | GoBackward | TurnLeft | TurnRight;
