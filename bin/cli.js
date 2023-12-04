@@ -16,7 +16,7 @@ switch (command) {
         file = args[3];
         await generateAST(file);
         break;
-    case "visitFile":
+    case "interpret":
         file = args[3];
         await visitFile(file);
         break;
