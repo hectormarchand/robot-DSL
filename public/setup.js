@@ -29,6 +29,7 @@ def square() {
 }`
 
 editorConfig.setMainCode(code);
+wrapper.
 
 editorConfig.theme = 'vs-dark';
 editorConfig.useLanguageClient = true;
@@ -57,7 +58,8 @@ const execute = (async () => {
     console.info('running current code...');
 
     const monacoEditor = document.getElementById("monaco-editor-root");
-    console.log("editor :", monaco.code);
+    console.log("value", wrapper.getEditor().getValue());   
+    //console.log("editor :", monaco);
 
 });
 
