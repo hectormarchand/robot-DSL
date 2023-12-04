@@ -1,8 +1,8 @@
 import { Robot } from "../../web/simulator/entities.js";
 import { BaseScene } from "../../web/simulator/scene.js";
 import { Vector } from "../../web/simulator/utils.js";
-import { Unit } from "../generated/ast.js";
-import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Expression, Fn, FunctionCall, GetSensorValue, GoBackward, GoForward, Loop, Model, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
+import { Expression, Unit } from "../generated/ast.js";
+import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Fn, FunctionCall, GetDistance, GetSpeed, GetTimestamp, GoBackward, GoForward, Loop, Model, NumberLiteral, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class InterpreterVisitor implements RoboMLVisitor {
 
@@ -18,21 +18,6 @@ export class InterpreterVisitor implements RoboMLVisitor {
     visitBlock(node: Block) {
         for (let statement of node.statements) {
             acceptNode(statement, this);
-        }
-    }
-    visitExpression(node: Expression) {
-        if (node.func) {
-            return acceptNode(node.func, this);
-        } else if (node.value) {
-            if (typeof node.value === 'number') {
-                return node.value;
-            } else {
-                return acceptNode(node.value, this);
-            }
-        } else if(node.comparison) {
-            return acceptNode(node.comparison, this);
-        } else {
-            return acceptNode(node.variable, this);
         }
     }
     visitFn(node: Fn) {
@@ -92,7 +77,7 @@ export class InterpreterVisitor implements RoboMLVisitor {
     }
     visitVariableRedeclaration(node: VariableRedeclaration) {
         if (!node.variableName.ref) {
-            return ;
+            throw new Error("variable ref is undefined");
         }
         this.variables.set(node.variableName.ref?.name, acceptNode(node.expression, this))
     }
@@ -138,15 +123,6 @@ export class InterpreterVisitor implements RoboMLVisitor {
                 throw new Error("operator not implemented")
         }
     }
-    visitGetSensorValue(node: GetSensorValue) {
-        if (node.distance) {
-            return 100;
-        } else if (node.timestamp) {
-            return 100;
-        } else {
-            return this.robot.speed;
-        }
-    }
     visitPrint(node: Print) {
         if (node.expression) {
             console.log(acceptNode(node.expression, this));
@@ -156,6 +132,18 @@ export class InterpreterVisitor implements RoboMLVisitor {
     }
     visitConstantBooleanValue(node: ConstantBooleanValue) {
         return node.booleanValue === 'true';
+    }
+    visitGetSpeed(node: GetSpeed) {
+        return this.robot.speed;
+    }
+    visitGetDistance(node: GetDistance) {
+        return 100;
+    }
+    visitGetTimestamp(node: GetTimestamp) {
+        return 150;    
+    }
+    visitNumberLiteral(node: NumberLiteral) {
+        return node.value;
     }
 
 

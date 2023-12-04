@@ -58,9 +58,9 @@ MultiplicationExpression infers Expression:
 
 PrimaryArithmeticExpression infers Expression:
     '(' ArithmeticExpression ')' |
-    value=INT |
-    {infer GetSensorValue} sensorValue=GetSensorValue |
-    variable=VariableCall;
+    {infer NumberLiteral} value=INT |
+    {infer GetSensorValue} GetSensorValue |
+    {infer VariableCall} VariableCall;
 
 BooleanExpression infers Expression:
     OrExpression;
@@ -73,9 +73,9 @@ AndExpression infers Expression:
 
 PrimaryBooleanExpression infers Expression:
     '(' BooleanExpression ')' |
-    value=ConstantBooleanValue |
-    variable=VariableCall |
-    comparison=Comparison;
+    {infer ConstantBooleanValue} ConstantBooleanValue |
+    {infer VariableCall} VariableCall |
+    {infer Comparison} Comparison;
 
 Comparison:
     left=ArithmeticExpression operator=RelationalOperator right=ArithmeticExpression;
@@ -105,16 +105,7 @@ Unit returns string:
     'mm' | 'cm' | 'm';
 
 GetSensorValue:
-    timestamp=GetTimestamp | speed=GetSpeed | distance=GetDistance;
-
-GetTimestamp returns string:
-    'get_timestamp';
-
-GetSpeed returns string:
-    'get_speed';
-
-GetDistance returns string:
-    'get_distance';
+    {infer GetTimestamp} "get_timestamp" | {infer GetDistance} "get_distance" | {infer GetSpeed} "get_speed";
 
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;

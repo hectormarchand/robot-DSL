@@ -25,10 +25,6 @@ export class RoboMlAcceptWeaver {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitBlock(node as unknown as ClassAST.Block );}
     }
 
-    weaveExpression(node: InterfaceAST.Expression, accept: ValidationAcceptor) : void {
-        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitExpression(node as unknown as ClassAST.Expression);}
-    }
-
     weaveFn(node: InterfaceAST.Fn, accept: ValidationAcceptor) : void {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitFn(node as unknown as ClassAST.Fn);}
     }
@@ -93,10 +89,6 @@ export class RoboMlAcceptWeaver {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitComparison(node as unknown as ClassAST.Comparison);}
     }
 
-    weaveGetSensorValue(node: InterfaceAST.GetSensorValue, accept: ValidationAcceptor) : void {
-        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitGetSensorValue(node as unknown as ClassAST.GetSensorValue);}
-    }
-
     weavePrint(node: InterfaceAST.Print, accept: ValidationAcceptor) : void {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitPrint(node as unknown as ClassAST.Print);}
     }
@@ -105,10 +97,25 @@ export class RoboMlAcceptWeaver {
         (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitConstantBooleanValue(node as unknown as ClassAST.ConstantBooleanValue);}
     }
 
+    weaveGetDistance(node: InterfaceAST.GetDistance, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitGetDistance(node as unknown as ClassAST.GetDistance);}
+    }
+
+    weaveGetSpeed(node: InterfaceAST.GetSpeed, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitGetSpeed(node as unknown as ClassAST.GetSpeed);}
+    }
+
+    weaveGetTimestamp(node: InterfaceAST.GetTimestamp, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitGetTimestamp(node as unknown as ClassAST.GetTimestamp);}
+    }
+
+    weaveNumberLiteral(node: InterfaceAST.NumberLiteral, accept: ValidationAcceptor) : void {
+        (<any> node).accept = (visitor: RoboMLVisitor) => {return visitor.visitNumberLiteral(node as unknown as ClassAST.NumberLiteral);}
+    }
+
 
     checks: ValidationChecks<RobotLanguageAstType> = {
         Block: this.weaveBlock,
-        Expression: this.weaveExpression,
         Fn: this.weaveFn,
         FunctionCall: this.weaveFunctionCall,
         Condition: this.weaveCondition,
@@ -125,9 +132,12 @@ export class RoboMlAcceptWeaver {
         BinaryArithmeticExpression: this.weaveBinaryArithmeticExpression,
         BinaryBooleanExpression: this.weaveBinaryBooleanExpression,
         Comparison: this.weaveComparison,
-        GetSensorValue: this.weaveGetSensorValue,
         Print: this.weavePrint,
-        ConstantBooleanValue: this.weaveConstantBooleanValue
+        ConstantBooleanValue: this.weaveConstantBooleanValue,
+        GetSpeed: this.weaveGetSpeed,
+        GetDistance: this.weaveGetDistance,
+        GetTimestamp: this.weaveGetTimestamp,
+        NumberLiteral: this.weaveNumberLiteral
     };
 
 }
