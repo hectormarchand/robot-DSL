@@ -1,5 +1,7 @@
 import { WebSocketServer } from "ws";
-import { visitFile } from "../../cli/main.js";
+import { Model } from "../../language/generated/ast.js";
+import { interpret } from "../../semantic/interpreter.js";
+import { createAstFromString } from "./utils.js";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
@@ -18,15 +20,16 @@ export class WebSocketReceiver {
         })
     }
 
-    private onMessageReceived = (event: any) => {
+    private onMessageReceived = async (event: any): Promise<void> => {
         const message = JSON.parse(event.data);
-        console.log("type :",message.type);
+        console.log("type :", message.type);
         
         switch (message.type) {
             case "code":
                 const codeReceived = message.text;
                 console.log(codeReceived);
-                visitFile(codeReceived);
+                const model: Model = await createAstFromString<Model>(codeReceived);
+                interpret(model);
                 break;
             default:
                 break;
