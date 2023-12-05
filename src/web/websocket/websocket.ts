@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import { visitFile } from "../../cli/main.js";
+import { visitFile, parseAndValidate } from "../../cli/main.js";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
@@ -9,7 +9,7 @@ export class WebSocketReceiver {
     constructor() {
         this.socket = new WebSocketServer({ port: 3003 });
         
-        this.socket.on("connection", (ws) => {
+        this.socket.on("connection", (ws: any) => {
             console.log("ws connected");
 
             ws.onerror = this.onSocketError;
@@ -21,13 +21,21 @@ export class WebSocketReceiver {
     private onMessageReceived = (event: any) => {
         const message = JSON.parse(event.data);
         console.log("type :",message.type);
+        let codeReceived = "";
         
         switch (message.type) {
             case "code":
-                const codeReceived = message.text;
+                codeReceived = message.text;
                 console.log(codeReceived);
                 visitFile(codeReceived);
                 break;
+            case "parseAndValidate":
+                console.log("parseAndValidate :");
+                codeReceived = message.text;
+                console.log(codeReceived);
+                parseAndValidate(codeReceived);
+                break;
+
             default:
                 break;
         }
