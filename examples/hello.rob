@@ -19,14 +19,14 @@
 def entry() {
     set_speed 10 cm
     var v1 = 0
-    print "regarde là :"
-    print get_speed + get_distance + get_timestamp
+    //print "regarde là :"
+    //print get_speed + get_distance + get_timestamp
     
-    loop v1 < 100 {
+    loop v1 < 20 {
         forward 1 m
         turn_left 90
-        print v1 
+        print v1 + v1
         v1 = v1 + 1
     }
-    print "fin"
+    //print "fin"
 }

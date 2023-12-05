@@ -59,8 +59,8 @@ MultiplicationExpression infers Expression:
 PrimaryArithmeticExpression infers Expression:
     '(' ArithmeticExpression ')' |
     {infer NumberLiteral} value=INT |
-    {infer GetSensorValue} GetSensorValue |
-    {infer VariableCall} VariableCall;
+    GetSensorValue |
+    VariableCall;
 
 BooleanExpression infers Expression:
     OrExpression;
@@ -73,9 +73,9 @@ AndExpression infers Expression:
 
 PrimaryBooleanExpression infers Expression:
     '(' BooleanExpression ')' |
-    {infer ConstantBooleanValue} ConstantBooleanValue |
-    {infer VariableCall} VariableCall |
-    {infer Comparison} Comparison;
+    ConstantBooleanValue |
+    VariableCall |
+    Comparison;
 
 Comparison:
     left=ArithmeticExpression operator=RelationalOperator right=ArithmeticExpression;

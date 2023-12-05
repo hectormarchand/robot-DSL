@@ -1,6 +1,7 @@
 import { MonacoEditorLanguageClientWrapper } from './monaco-editor-wrapper/index.js';
 import { buildWorkerDefinition } from "./monaco-editor-workers/index.js";
 import monarchSyntax from "./syntaxes/robot-language.monarch.js";
+import { sendCode } from './simulator/websocket.js';
 
 buildWorkerDefinition('./monaco-editor-workers/workers', new URL('', window.location.href).href, false);
 
@@ -56,10 +57,11 @@ const parseAndValidate = (async () => {
 
 const execute = (async () => {
     console.info('running current code...');
-
-    const monacoEditor = document.getElementById("monaco-editor-root");
-    console.log("value", wrapper.getEditor().getValue());   
-    //console.log("editor :", monaco);
+    
+    // get code to interpret
+    const code = wrapper.getEditor().getValue();
+    
+    sendCode(code);
 
 });
 
@@ -132,24 +134,3 @@ wrapper.setWorker(lsWorker);
 
 // keep a reference to a promise for when the editor is finished starting, we'll use this to setup the canvas on load
 const startingPromise = wrapper.startEditor(document.getElementById("monaco-editor-root"))
-
-
-
-// const client = wrapper.getLanguageClient();
-// if (!client) {
-//     throw new Error('Unable to obtain language client!');
-// }
-
-// // listen for document change notifications
-// client.onNotification('browser/DocumentChange', onDocumentChange);
-// console.log(client);
-
-// function onDocumentChange(resp) {
-//     console.log(resp);
-// }
-
-
-
-
-
-
