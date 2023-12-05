@@ -1,7 +1,7 @@
 import { MonacoEditorLanguageClientWrapper } from './monaco-editor-wrapper/index.js';
 import { buildWorkerDefinition } from "./monaco-editor-workers/index.js";
 import monarchSyntax from "./syntaxes/robot-language.monarch.js";
-import { sendCode } from './simulator/websocket.js';
+import { sendCode, sendParseAndValidate } from './simulator/websocket.js';
 
 buildWorkerDefinition('./monaco-editor-workers/workers', new URL('', window.location.href).href, false);
 
@@ -52,9 +52,8 @@ const typecheck = (async () => {
 
 const parseAndValidate = (async () => {
     console.info('validating current code...');
-    const fileContent = wrapper.getEditor().getValue();
-
-    // To implement : send to server
+    const codeToParse = wrapper.getEditor().getValue();
+    sendParseAndValidate(codeToParse);
 });
 
 const execute = (async () => {

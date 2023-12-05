@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import { visitFile } from "../../cli/main.js";
+import { parseAndValidate } from "../../cli/main.js";
 import { createAstFromString } from "./utils.js";
 import { Model } from "../../language/visitor.js";
 import { interpret } from "../../semantic/interpreter.js";
@@ -23,7 +23,7 @@ export class WebSocketReceiver {
 
     private onMessageReceived = async (event: any): Promise<void> => {
         const message = JSON.parse(event.data);
-        console.log("type :",message.type);
+        console.log("Message received type :",message.type);
         let codeReceived = "";
         
         switch (message.type) {
@@ -34,10 +34,9 @@ export class WebSocketReceiver {
                 interpret(model);
                 break;
             case "parseAndValidate":
-                console.log("parseAndValidate :");
+                console.log("parseAndValidate...");
                 codeReceived = message.text;
-                console.log(codeReceived);
-                //parseAndValidate(codeReceived);
+                parseAndValidate(codeReceived);
                 break;
 
             default:
