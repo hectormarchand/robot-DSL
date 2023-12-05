@@ -7,6 +7,7 @@ import { extractAstNode } from './cli-util.js';
 import { generateJavaScript, writeAst } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import { interpret } from '../semantic/interpreter.js';
+import { createDocumentFromString } from '../web/websocket/utils.js';
 
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
@@ -27,6 +28,24 @@ export const visitFile = async (fileName: string): Promise<void> => {
     const model = await extractAstNode<Model>(fileName, services);
     interpret(model);
 }
+
+export const parseAndValidate = async (code: string): Promise<void> => {
+
+    
+
+    const contentToParse = await createDocumentFromString(code);
+
+    const parseResult = contentToParse.parseResult;
+    // verify no lexer, parser, or general diagnostic errors show up
+    if (parseResult.lexerErrors.length === 0 && 
+        parseResult.parserErrors.length === 0
+    ) {
+        console.log(chalk.green(`Parsed and validated successfully!`));
+    } else {
+        console.log(chalk.red(`Failed to parse and validate !`));
+    }
+}
+
 export type GenerateOptions = {
     destination?: string;
 }

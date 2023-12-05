@@ -1,7 +1,7 @@
 import { MonacoEditorLanguageClientWrapper } from './monaco-editor-wrapper/index.js';
 import { buildWorkerDefinition } from "./monaco-editor-workers/index.js";
 import monarchSyntax from "./syntaxes/robot-language.monarch.js";
-import { sendCode } from './simulator/websocket.js';
+import { sendCode, sendParseAndValidate } from './simulator/websocket.js';
 
 buildWorkerDefinition('./monaco-editor-workers/workers', new URL('', window.location.href).href, false);
 
@@ -52,29 +52,8 @@ const typecheck = (async () => {
 
 const parseAndValidate = (async () => {
     console.info('validating current code...');
-    
-    // get code to validate
-    const fileContent = wrapper.getEditor().getValue();
-
-    // create file for validation
-    const fileName = "file.rob";
-    const file = new File([fileContent], fileName, { type: "text/plain" });
-
-    // extract the parse result details
-    const parseResult = document.parseResult;
-
-    // parse and validate
-    const services = createHelloWorldServices(NodeFileSystem).HelloWorld;
-    const document = await extractDocument(fileName, services);
-
-    // verify no lexer, parser, or general diagnostic errors show up
-    if (parseResult.lexerErrors.length === 0 && 
-        parseResult.parserErrors.length === 0
-    ) {
-        console.log(chalk.green(`Parsed and validated ${fileName} successfully!`));
-    } else {
-        console.log(chalk.red(`Failed to parse and validate ${fileName}!`));
-    }
+    const codeToParse = wrapper.getEditor().getValue();
+    sendParseAndValidate(codeToParse);
 });
 
 const execute = (async () => {

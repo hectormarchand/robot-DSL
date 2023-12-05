@@ -22,3 +22,25 @@ export function sendCode(code) {
     webSocket.send(JSON.stringify(msg));
 }
 
+export function sendParseAndValidate(codeToParse) {
+    const msg = {
+        type: "parseAndValidate",
+        text: codeToParse,
+        date: Date.now(),
+    };
+
+    webSocket.send(JSON.stringify(msg));
+
+}
+
+export function sendParseAndValidate(codeToParse) {
+    const msg = {
+        type: "parseAndValidate",
+        text: codeToParse,
+        date: Date.now(),
+    };
+
+    webSocket.send(JSON.stringify(msg));
+
+}
+

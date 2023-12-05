@@ -1,8 +1,9 @@
-import { Model } from "../../language/generated/ast.js";
+import { WebSocketServer } from "ws";
+import { parseAndValidate } from "../../cli/main.js";
+import { Model } from "../../language/visitor.js";
 import { interpret } from "../../semantic/interpreter.js";
 import { createAstFromString } from "./utils.js";
 import { Robot } from "../simulator/entities.js";
-import { WebSocketServer } from "ws";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
@@ -26,15 +27,22 @@ export class WebSocketReceiver {
 
     private onMessageReceived = async (event: any): Promise<void> => {
         const message = JSON.parse(event.data);
-        console.log("type :", message.type);
+        console.log("Message received type :",message.type);
+        let codeReceived = "";
         
         switch (message.type) {
             case "code":
-                const codeReceived = message.text;
+                codeReceived = message.text;
                 console.log(codeReceived);
                 const model: Model = await createAstFromString<Model>(codeReceived);
                 interpret(model);
                 break;
+            case "parseAndValidate":
+                console.log("parseAndValidate...");
+                codeReceived = message.text;
+                parseAndValidate(codeReceived);
+                break;
+
             default:
                 break;
         }
