@@ -52,9 +52,8 @@ const typecheck = (async () => {
 
 const parseAndValidate = (async () => {
     console.info('validating current code...');
-    const fileContent = wrapper.getEditor().getValue();
-
-    sendParseAndValidate(fileContent);
+    const codeToParse = wrapper.getEditor().getValue();
+    sendParseAndValidate(codeToParse);
 });
 
 const execute = (async () => {

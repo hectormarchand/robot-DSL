@@ -72,4 +72,15 @@ export class WebSocketReceiver {
 
         this.currentWS?.send(JSON.stringify(msg));
     }
+
+    public emitParsedAndValidated(success: boolean): void {
+        if (!this.currentWS) {
+            return ;
+        }
+        if (success) {
+            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Parsed and validated successfully!"}));
+        } else {
+            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Failed to parse and validate!"}));
+        }
+    }
 }

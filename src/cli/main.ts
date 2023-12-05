@@ -8,6 +8,7 @@ import { generateJavaScript, writeAst } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import { interpret } from '../semantic/interpreter.js';
 import { createDocumentFromString } from '../web/websocket/utils.js';
+import { wsServer } from '../web/app.js';
 
 export const generateAction = async (fileName: string, opts: GenerateOptions): Promise<void> => {
     const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
@@ -40,9 +41,12 @@ export const parseAndValidate = async (code: string): Promise<void> => {
     if (parseResult.lexerErrors.length === 0 && 
         parseResult.parserErrors.length === 0
     ) {
+
         console.log(chalk.green(`Parsed and validated successfully!`));
+        wsServer.emitParsedAndValidated(true);
     } else {
         console.log(chalk.red(`Failed to parse and validate !`));
+        wsServer.emitParsedAndValidated(false);
     }
 }
 
