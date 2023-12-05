@@ -52,29 +52,9 @@ const typecheck = (async () => {
 
 const parseAndValidate = (async () => {
     console.info('validating current code...');
-    
-    // get code to validate
     const fileContent = wrapper.getEditor().getValue();
 
-    // create file for validation
-    const fileName = "file.rob";
-    const file = new File([fileContent], fileName, { type: "text/plain" });
-
-    // extract the parse result details
-    const parseResult = document.parseResult;
-
-    // parse and validate
-    const services = createHelloWorldServices(NodeFileSystem).HelloWorld;
-    const document = await extractDocument(fileName, services);
-
-    // verify no lexer, parser, or general diagnostic errors show up
-    if (parseResult.lexerErrors.length === 0 && 
-        parseResult.parserErrors.length === 0
-    ) {
-        console.log(chalk.green(`Parsed and validated ${fileName} successfully!`));
-    } else {
-        console.log(chalk.red(`Failed to parse and validate ${fileName}!`));
-    }
+    // To implement : send to server
 });
 
 const execute = (async () => {
