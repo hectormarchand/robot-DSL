@@ -1,3 +1,4 @@
+import { wsServer } from "../../web/app.js";
 import { Robot } from "../../web/simulator/entities.js";
 import { BaseScene } from "../../web/simulator/scene.js";
 import { Vector } from "../../web/simulator/utils.js";
@@ -39,10 +40,12 @@ export class InterpreterVisitor implements RoboMLVisitor {
     visitGoBackward(node: GoBackward) {
         const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
         this.robot.move(-distance);
+        this.sendRobotToClient();
     }
     visitGoForward(node: GoForward) {
         const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
         this.robot.move(distance);
+        this.sendRobotToClient();
     }
     visitLoop(node: Loop) {
         while (acceptNode(node.be, this)) {
@@ -62,9 +65,11 @@ export class InterpreterVisitor implements RoboMLVisitor {
     }
     visitTurnLeft(node: TurnLeft) {
         this.robot.turn(2 * Math.PI - acceptNode(node.angle, this));
+        this.sendRobotToClient();
     }
     visitTurnRight(node: TurnRight) {
         this.robot.turn(acceptNode(node.angle, this));
+        this.sendRobotToClient();
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -158,5 +163,9 @@ export class InterpreterVisitor implements RoboMLVisitor {
             default:
         }
         return distance;
+    }
+
+    private sendRobotToClient(): void {
+        wsServer.emitRobot(this.robot);
     }
 }

@@ -4,6 +4,10 @@ let webSocket = new WebSocket(SOCKET_URL);
 
 webSocket.onopen = () => {
     console.info("web socket open");
+
+    webSocket.onmessage = function message(data) {
+        console.log('received: %s', data.data);
+    };
 };
 
 export function sendCode(code) {
@@ -18,6 +22,3 @@ export function sendCode(code) {
     webSocket.send(JSON.stringify(msg));
 }
 
-webSocket.onmessage = (event) => {
-    console.log("message recu : " + event.data);
-}

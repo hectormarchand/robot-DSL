@@ -1,18 +1,22 @@
-import { WebSocketServer } from "ws";
 import { Model } from "../../language/generated/ast.js";
 import { interpret } from "../../semantic/interpreter.js";
 import { createAstFromString } from "./utils.js";
+import { Robot } from "../simulator/entities.js";
+import { WebSocketServer } from "ws";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
 export class WebSocketReceiver {
     private socket: WebSocketServer;
+    private currentWS: WebSocket | undefined;
 
     constructor() {
         this.socket = new WebSocketServer({ port: 3003 });
+        this.currentWS = undefined;
         
-        this.socket.on("connection", (ws) => {
+        this.socket.on("connection", (ws: WebSocket) => {
             console.log("ws connected");
+            this.currentWS = ws;
 
             ws.onerror = this.onSocketError;
 
@@ -43,5 +47,21 @@ export class WebSocketReceiver {
 
     public closeConnection(): void {
         this.socket.close();
+    }
+
+    public emitRobot(robot: Robot): void {
+        if (!this.currentWS) {
+            return ;
+        }
+
+        const msg = {
+            pos_x: robot.pos.x,
+            pos_y: robot.pos.y,
+            angle: robot.rad * 180 / Math.PI, // radian to degree
+        }
+
+        console.log("send msg to client :", msg);
+
+        this.currentWS?.send(JSON.stringify(msg));
     }
 }
