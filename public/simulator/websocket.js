@@ -4,10 +4,6 @@ let webSocket = new WebSocket(SOCKET_URL);
 
 webSocket.onopen = () => {
     console.info("web socket open");
-
-    webSocket.onmessage = function message(data) {
-        console.log('received: %s', data.data);
-    };
 };
 
 export function sendCode(code) {
@@ -33,14 +29,19 @@ export function sendParseAndValidate(codeToParse) {
 
 }
 
-export function sendParseAndValidate(codeToParse) {
-    const msg = {
-        type: "parseAndValidate",
-        text: codeToParse,
-        date: Date.now(),
-    };
+webSocket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    console.log("message recu : " + message);
 
-    webSocket.send(JSON.stringify(msg));
-
+    switch (message.type) {
+        case "robot":
+            const robotData = message.data;
+            console.log("robot :", window.p5robot);
+            window.p5robot.turn(robotData.angle);
+            window.p5robot.move(robotData.dist);
+            break;
+        default:
+            console.log("default");
+            break;
+    }
 }
-
