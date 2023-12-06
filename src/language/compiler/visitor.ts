@@ -1,109 +1,86 @@
-import { Robot } from "../../web/simulator/entities.js";
-import { BaseScene } from "../../web/simulator/scene.js";
-import { Vector } from "../../web/simulator/utils.js";
 import { Unit } from "../generated/ast.js";
 import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Fn, FunctionCall, GetDistance, GetSpeed, GetTimestamp, GoBackward, GoForward, Loop, Model, NumberLiteral, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class CompilerVisitor implements RoboMLVisitor {
 
-    private robot: Robot;
     private codeCompiled: string;
 
     constructor() {
-        this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
         this.codeCompiled = "";
     }
 
 
     visitBlock(node: Block) {
+        let res = "";
         for (let statement of node.statements) {
-            acceptNode(statement, this);
+            res += acceptNode(statement, this);
         }
+        return res;
     }
     visitFn(node: Fn) {
         if (node.name === "entry") {
-            console.log("entry function");
-            this.codeCompiled+="void loop() {\n";
-            acceptNode(node.block, this);
-            this.codeCompiled+="}\n";
+            return "void loop() {\n" + acceptNode(node.block, this) + "}\n";
         } else {
-            console.log(node.name," function");
-            this.codeCompiled+="void "+node.name+"() {\n";
-            acceptNode(node.block, this);
-            this.codeCompiled+="}\n";
+            return "void "+node.name+"() {\n" + acceptNode(node.block, this) + "}\n";
         }
     }
     visitFunctionCall(node: FunctionCall) {
         if (!node.functionName.ref) {
             throw new Error("function ref is undefined");
         }
-        this.codeCompiled+=node.functionName.ref.name+"();\n";
-        //return acceptNode(node.functionName.ref, this);
+        return node.functionName.ref.name+"();\n";
     }
     visitCondition(node: Condition) {
-        this.codeCompiled+="if ("+acceptNode(node.be,this)+") {\n";
-        acceptNode(node.block, this);
-        this.codeCompiled+="}\n";
+        return "if (" + acceptNode(node.be,this)+") {\n" + acceptNode(node.block, this) +"}\n";
     }
     visitGoBackward(node: GoBackward) {
-        this.codeCompiled+="goBackward(-"+acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
+        return "goBackward(-" + acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
     }
     visitGoForward(node: GoForward) {
-        this.codeCompiled+="goForward("+acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
+        return "goForward(" + acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
     }
     visitLoop(node: Loop) {
-        this.codeCompiled+="loop {\n";
-        acceptNode(node.block, this);
-        this.codeCompiled+="}\n";
+        return "while ("+acceptNode(node.be, this)+")" +" {\n" + acceptNode(node.block, this) + "}\n";
     }
     visitModel(node: Model) {
         for (let fn of node.fn) {
-            acceptNode(fn, this);
+            this.codeCompiled+= acceptNode(fn, this) + "\n";
         }
     }
     visitSetSpeed(node: SetSpeed) {
-        this.codeCompiled+="setSpeed("+acceptNode(node.speed,this)+","+this.getUnit(node.unit)+");\n";
+        return "setSpeed(" + acceptNode(node.speed,this)+","+this.getUnit(node.unit)+");\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        this.robot.turn(2 * Math.PI - acceptNode(node.angle, this));
-        this.codeCompiled+="turnLeft("+acceptNode(node.angle,this)+");\n";
+        return "turnLeft(" + acceptNode(node.angle,this)+");\n";
     }
     visitTurnRight(node: TurnRight) {
-        this.robot.turn(acceptNode(node.angle, this));
-        this.codeCompiled+="turnRight("+acceptNode(node.angle,this)+");\n";
+        return "turnRight(" + acceptNode(node.angle,this)+");\n";
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
             throw new Error("variable ref is undefined");
         }
-        this.codeCompiled+=node.variableCall.ref.name;
-        //return this.variables.get(node.variableCall.ref?.name);
+        return node.variableCall.ref.name;
     }
     visitVariableDeclaration(node: VariableDeclaration) {
-        this.codeCompiled+="int "+node.name+" = "+acceptNode(node.expression, this)+";\n";
-        //this.variables.set(node.name, acceptNode(node.expression, this));
+        return "int "+node.name+" = " + acceptNode(node.expression, this)+";\n";
     }
     visitVariableRedeclaration(node: VariableRedeclaration) {
         if (!node.variableName.ref) {
             throw new Error("variable ref is undefined");
         }
-        this.codeCompiled+=node.variableName.ref.name+" = "+acceptNode(node.expression, this)+";\n";
-        //this.variables.set(node.variableName.ref?.name, acceptNode(node.expression, this))
+        return node.variableName.ref.name+" = " + acceptNode(node.expression, this)+";\n";
     }
     visitBinaryArithmeticExpression(node: BinaryArithmeticExpression) {
         switch (node.operator) {
             case '+':
-                this.codeCompiled+=acceptNode(node.left, this)+" + "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) + acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" + " + acceptNode(node.right, this)+"\n";
             case '-':
-                this.codeCompiled+=acceptNode(node.left, this)+" - "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) - acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" - " + acceptNode(node.right, this)+"\n";
             case '*':
-                this.codeCompiled+=acceptNode(node.left, this)+" * "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) * acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" * " + acceptNode(node.right, this)+"\n";
             case '/':
-                this.codeCompiled+=acceptNode(node.left, this)+" / "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) / acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" / " + acceptNode(node.right, this)+"\n";
             default:
                 throw new Error("operator not implemented");
         }
@@ -111,11 +88,9 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitBinaryBooleanExpression(node: BinaryBooleanExpression) {
         switch (node.operator) {
             case 'and':
-                this.codeCompiled+=acceptNode(node.left, this)+" && "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) && acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" && " + acceptNode(node.right, this)+"\n";
             case 'or':
-                this.codeCompiled+=acceptNode(node.left, this)+" || "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) || acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" || " + acceptNode(node.right, this)+"\n";
             default:
                 throw new Error("operator not implemented");
         }
@@ -123,52 +98,48 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitComparison(node: Comparison) {
         switch (node.operator) {
             case '!=':
-                this.codeCompiled+=acceptNode(node.left, this)+" != "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) != acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" != " + acceptNode(node.right, this)+"\n";
             case '==':
-                this.codeCompiled+=acceptNode(node.left, this)+" == "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) == acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" == " + acceptNode(node.right, this)+"\n";
             case '<':
-                this.codeCompiled+=acceptNode(node.left, this)+" < "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) < acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" < " + acceptNode(node.right, this)+"\n";
             case '<=':
-                this.codeCompiled+=acceptNode(node.left, this)+" <= "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) <= acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" <= " + acceptNode(node.right, this)+"\n";
             case '>':
-                this.codeCompiled+=acceptNode(node.left, this)+" > "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) > acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" > " + acceptNode(node.right, this)+"\n";
             case '>=':
-                this.codeCompiled+=acceptNode(node.left, this)+" >= "+acceptNode(node.right, this)+"\n";
-                //return acceptNode(node.left, this) >= acceptNode(node.right, this);
+                return acceptNode(node.left, this)+" >= " + acceptNode(node.right, this)+"\n";
             default:
                 throw new Error("operator not implemented")
         }
     }
     visitPrint(node: Print) {
         if (node.expression) {
-            this.codeCompiled+="Serial.println("+acceptNode(node.expression, this)+");\n";
+            return "Serial.println(" + acceptNode(node.expression, this)+");\n";
         } else if (node.str) {
-            this.codeCompiled+="Serial.println("+node.str+");\n";
+            return "Serial.println("+node.str+");\n";
+        } else {
+            throw new Error("print statement not implemented");
         }
     }
     visitConstantBooleanValue(node: ConstantBooleanValue) {
         if (node.booleanValue === 'true') {
-            this.codeCompiled+="true";
+            return "true";
         } else {
-            this.codeCompiled+="false";
+            return "false";
         }
     }
     visitGetSpeed(node: GetSpeed) {
-        this.codeCompiled+="getSpeed()";
+        return "getSpeed()";
     }
     visitGetDistance(node: GetDistance) {
-        this.codeCompiled+="getDistance()";
+        return "getDistance()";
     }
     visitGetTimestamp(node: GetTimestamp) {
-        this.codeCompiled+="millis()"; 
+        return "millis()"; 
     }
     visitNumberLiteral(node: NumberLiteral) {
-        this.codeCompiled+=node.value;
+        return node.value.toString();
     }
 
 
