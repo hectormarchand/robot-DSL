@@ -22,15 +22,16 @@ export class CompilerVisitor implements RoboMLVisitor {
     }
     visitFn(node: Fn) {
         if (node.name === "entry") {
+            console.log("entry function");
             this.codeCompiled+="void loop() {\n";
             acceptNode(node.block, this);
             this.codeCompiled+="}\n";
         } else {
+            console.log(node.name," function");
             this.codeCompiled+="void "+node.name+"() {\n";
             acceptNode(node.block, this);
             this.codeCompiled+="}\n";
         }
-        //return acceptNode(node.block, this);
     }
     visitFunctionCall(node: FunctionCall) {
         if (!node.functionName.ref) {
@@ -45,15 +46,10 @@ export class CompilerVisitor implements RoboMLVisitor {
         this.codeCompiled+="}\n";
     }
     visitGoBackward(node: GoBackward) {
-        const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
-        this.robot.move(-distance);
-        this.codeCompiled+="goBackward(-"+distance+");\n";
+        this.codeCompiled+="goBackward(-"+acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
     }
     visitGoForward(node: GoForward) {
-        const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
-        this.robot.move(distance);
-        this.codeCompiled+="goForward("+distance+");\n";
-
+        this.codeCompiled+="goForward("+acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
     }
     visitLoop(node: Loop) {
         this.codeCompiled+="loop {\n";
@@ -62,13 +58,11 @@ export class CompilerVisitor implements RoboMLVisitor {
     }
     visitModel(node: Model) {
         for (let fn of node.fn) {
-            return acceptNode(fn, this);
+            acceptNode(fn, this);
         }
     }
     visitSetSpeed(node: SetSpeed) {
-        const speed: number = this.toMeters(acceptNode(node.speed, this), node.unit);
-        this.robot.speed = speed;
-        this.codeCompiled+="setSpeed("+acceptNode(node.speed,this)+");\n";
+        this.codeCompiled+="setSpeed("+acceptNode(node.speed,this)+","+this.getUnit(node.unit)+");\n";
     }
     visitTurnLeft(node: TurnLeft) {
         this.robot.turn(2 * Math.PI - acceptNode(node.angle, this));
@@ -178,17 +172,17 @@ export class CompilerVisitor implements RoboMLVisitor {
     }
 
 
-    private toMeters(distance: number, unit: Unit): number {
+    private getUnit(unit: Unit): string {
         switch (unit) {
             case "cm":
-                distance /= 100;
+                return "cm";
                 break;
             case "mm":
-                distance /= 1000;
+                return "mm";
                 break;
             default:
+                return "mm"
         }
-        return distance;
     }
 
     public getCodeCompiled(): string {
