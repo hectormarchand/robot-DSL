@@ -1,18 +1,21 @@
 import { wsServer } from "../../web/app.js";
 import { Robot } from "../../web/simulator/entities.js";
-import { BaseScene } from "../../web/simulator/scene.js";
+import { BaseScene, Scene } from "../../web/simulator/scene.js";
 import { Vector } from "../../web/simulator/utils.js";
 import { Expression, Unit } from "../generated/ast.js";
 import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Fn, FunctionCall, GetDistance, GetSpeed, GetTimestamp, GoBackward, GoForward, Loop, Model, NumberLiteral, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class InterpreterVisitor implements RoboMLVisitor {
 
+    private scene: Scene;
     private robot: Robot;
     private variables: Map<string,Expression>;
     public wait: boolean;
 
     constructor() {
-        this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
+        this.scene = new BaseScene();
+        this.robot = this.scene.robot;
+        //this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
         this.variables = new Map<string, Expression>();
         this.wait = false;
     }
@@ -150,10 +153,17 @@ export class InterpreterVisitor implements RoboMLVisitor {
         return this.robot.speed;
     }
     visitGetDistance(node: GetDistance) {
-        return 100;
+        const poi: Vector | undefined = this.robot.getRay().intersect(this.scene.entities);
+
+        if (poi) {
+            const dist: number = poi.distanceTo(this.robot.pos);
+            console.log("dis t :", dist);
+            return dist;
+        }
+        return 100000;
     }
     visitGetTimestamp(node: GetTimestamp) {
-        return 150;    
+        return 0;
     }
     visitNumberLiteral(node: NumberLiteral) {
         return node.value;

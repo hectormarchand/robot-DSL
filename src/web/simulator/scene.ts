@@ -1,5 +1,5 @@
 import * as Entities from "./entities.js"
-import { Vector } from "./utils.js"
+import { Ray, Vector } from "./utils.js"
 
 export interface Scene{
     size:Vector;
@@ -7,6 +7,8 @@ export interface Scene{
     robot: Entities.Robot;
     time:number;
     timestamps:Array<Entities.Timestamp>;
+
+    intersectWithWalls(ray:Ray) : Vector | undefined;
 }
 
 export class BaseScene{
@@ -24,6 +26,18 @@ export class BaseScene{
         this.entities.push(new Entities.Wall(this.size,     this.size.projY()));
         this.entities.push(new Entities.Wall(this.size,     this.size.projX()));
         this.timestamps.push(new Entities.Timestamp(0, this.robot));
+    }
+
+    intersectWithWalls(ray: Ray): Vector | undefined {
+        for (let entity of this.entities) {
+            if (entity.type === "Wall") {
+                const poi: Vector[] = entity.intersect(ray);
+                if (poi.length != 0) {
+                    return poi[0];
+                }
+            }
+        }
+        return undefined;
     }
 }
 
