@@ -22,8 +22,6 @@ class Robot {
         const h = (Math.sqrt(3)/2) * (this.width/3)
         triangle(-0.5*h, -(this.height/6), -0.5*h, this.height/6, 0.5*h, 0);
         pop();
-
-        
     }
   
     turn(angle){
@@ -40,8 +38,12 @@ class Robot {
         console.log("moving", dist);
         let anglecos = cos(this.angle);
         let anglesin = sin(this.angle);
+        const previous_x = this.x;
+        const previous_y = this.y;
         this.x += anglecos*dist;
         this.y += anglesin*dist;
+
+        new Line(previous_x, previous_y, this.x, this.y);
     }
 
     side(dist){

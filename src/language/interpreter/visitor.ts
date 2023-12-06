@@ -66,14 +66,14 @@ export class InterpreterVisitor implements RoboMLVisitor {
         this.robot.speed = speed;
     }
     visitTurnLeft(node: TurnLeft) {
-        let angle: number = acceptNode(node.angle, this) * Math.PI / 180;
+        let angle: number = acceptNode(node.angle, this) * Math.PI / 180; // degree to radian
 
         this.robot.turn(-angle);
 
         this.sendRobotToClient({dist: 0, angle: -angle});
     }
     visitTurnRight(node: TurnRight) {
-        let angle: number = acceptNode(node.angle, this) * Math.PI / 180;
+        let angle: number = acceptNode(node.angle, this) * Math.PI / 180; // degree to radian
 
         this.robot.turn(angle);
         

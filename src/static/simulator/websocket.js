@@ -40,6 +40,9 @@ webSocket.onmessage = (event) => {
             window.p5robot.turn(robotData.angle);
             window.p5robot.move(robotData.dist);
             break;
+        case "parseAndValidate":
+            console.log(message.text);
+            break;
         default:
             console.log("default");
             break;

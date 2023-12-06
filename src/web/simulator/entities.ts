@@ -30,7 +30,7 @@ export class Robot implements Entities{
     }
 
     turn(angle:number) : void {
-        this.rad += angle * Math.PI / 180;
+        this.rad += angle;
     }
 
     move(dist:number) : void {
