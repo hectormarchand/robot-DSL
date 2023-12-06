@@ -40,6 +40,12 @@ export class Vector {
     norm() : number{
         return Math.sqrt(this.x*this.x + this.y*this.y);
     }
+
+    distanceTo(other: Vector): number {
+        const dx = this.x - other.x;
+        const dy = this.y - other.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
 }
 
 export class Ray {

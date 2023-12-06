@@ -19,13 +19,13 @@ let code = `def entry() {
 }
 
 def square() {
-    forward 1 m
+    forward 150 m
     turn_left 90
-    forward 1 m
+    forward 150 m
     turn_left 90
-    forward 1 m
+    forward 150 m
     turn_left 90
-    forward 1 m
+    forward 150 m
     turn_left 90
 }`
 

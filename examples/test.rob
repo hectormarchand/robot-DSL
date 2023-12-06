@@ -1,15 +1,4 @@
 def entry() {
     set_speed 10 cm
-    square()
-}
 
-def square() {
-    forward 1 m
-    turn_left 90
-    forward 1 m
-    turn_left 90
-    forward 1 m
-    turn_left 90
-    forward 1 m
-    turn_left 90
 }

@@ -1,16 +1,11 @@
-import { Robot } from "../../web/simulator/entities.js";
-import { BaseScene } from "../../web/simulator/scene.js";
-import { Vector } from "../../web/simulator/utils.js";
 import { Unit } from "../generated/ast.js";
 import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Fn, FunctionCall, GetDistance, GetSpeed, GetTimestamp, GoBackward, GoForward, Loop, Model, NumberLiteral, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class CompilerVisitor implements RoboMLVisitor {
 
-    private robot: Robot;
     private codeCompiled: string;
 
     constructor() {
-        this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
         this.codeCompiled = "";
     }
 
@@ -65,11 +60,9 @@ export class CompilerVisitor implements RoboMLVisitor {
         this.codeCompiled+="setSpeed("+acceptNode(node.speed,this)+","+this.getUnit(node.unit)+");\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        this.robot.turn(2 * Math.PI - acceptNode(node.angle, this));
         this.codeCompiled+="turnLeft("+acceptNode(node.angle,this)+");\n";
     }
     visitTurnRight(node: TurnRight) {
-        this.robot.turn(acceptNode(node.angle, this));
         this.codeCompiled+="turnRight("+acceptNode(node.angle,this)+");\n";
     }
     visitVariableCall(node: VariableCall) {
