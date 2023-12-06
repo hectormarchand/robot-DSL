@@ -27,15 +27,18 @@ class Robot {
     }
   
     turn(angle){
+        console.log("turning ", angle);
         this.angle += angle;
         if(this.angle<0){
             this.angle += 360;
         } else if (this.angle >= 360){
             this.angle -= 360;
         }
+        this.angle *= Math.PI / 180;
     }
 
     move(dist){
+        console.log("moving", dist);
         let anglecos = cos(this.angle);
         let anglesin = sin(this.angle);
         this.x += anglecos*dist;

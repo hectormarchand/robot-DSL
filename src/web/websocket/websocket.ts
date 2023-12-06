@@ -3,7 +3,6 @@ import { parseAndValidate } from "../../cli/main.js";
 import { Model } from "../../language/visitor.js";
 import { interpret } from "../../semantic/interpreter.js";
 import { createAstFromString } from "./utils.js";
-import { Robot } from "../simulator/entities.js";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
@@ -57,20 +56,22 @@ export class WebSocketReceiver {
         this.socket.close();
     }
 
-    public emitRobot(robot: Robot): void {
+    public emitRobot({dist, angle}: {dist: number, angle: number}): void {
         if (!this.currentWS) {
             return ;
         }
 
-        const msg = {
-            pos_x: robot.pos.x,
-            pos_y: robot.pos.y,
-            angle: robot.rad * 180 / Math.PI, // radian to degree
+        const data = {
+            dist: dist,
+            angle: angle,
         }
 
-        console.log("send msg to client :", msg);
+        const payload = {
+            type: "robot",
+            data: data
+        }
 
-        this.currentWS?.send(JSON.stringify(msg));
+        this.currentWS.send(JSON.stringify(payload));
     }
 
     public emitParsedAndValidated(success: boolean): void {

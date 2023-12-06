@@ -9,10 +9,12 @@ export class InterpreterVisitor implements RoboMLVisitor {
 
     private robot: Robot;
     private variables: Map<string,Expression>;
+    public wait: boolean;
 
     constructor() {
         this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
         this.variables = new Map<string, Expression>();
+        this.wait = false;
     }
 
 
@@ -31,21 +33,21 @@ export class InterpreterVisitor implements RoboMLVisitor {
         return acceptNode(node.functionName.ref, this);
     }
     visitCondition(node: Condition) {
-        const res = acceptNode(node.be, this);
-        console.log("be :", res);
-        if (res) {
+        if (acceptNode(node.be, this)) {
             return acceptNode(node.block, this);
         }
     }
-    visitGoBackward(node: GoBackward) {
+    async visitGoBackward(node: GoBackward) {
         const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
         this.robot.move(-distance);
-        this.sendRobotToClient();
+
+        this.sendRobotToClient({dist: -distance, angle: 0});
     }
-    visitGoForward(node: GoForward) {
+    async visitGoForward(node: GoForward) {
         const distance: number = this.toMeters(acceptNode(node.distance, this), node.unit);
         this.robot.move(distance);
-        this.sendRobotToClient();
+
+        this.sendRobotToClient({dist: distance, angle: 0});
     }
     visitLoop(node: Loop) {
         while (acceptNode(node.be, this)) {
@@ -64,12 +66,18 @@ export class InterpreterVisitor implements RoboMLVisitor {
         this.robot.speed = speed;
     }
     visitTurnLeft(node: TurnLeft) {
-        this.robot.turn(2 * Math.PI - acceptNode(node.angle, this));
-        this.sendRobotToClient();
+        let angle: number = acceptNode(node.angle, this) * Math.PI / 180;
+
+        this.robot.turn(-angle);
+
+        this.sendRobotToClient({dist: 0, angle: -angle});
     }
     visitTurnRight(node: TurnRight) {
-        this.robot.turn(acceptNode(node.angle, this));
-        this.sendRobotToClient();
+        let angle: number = acceptNode(node.angle, this) * Math.PI / 180;
+
+        this.robot.turn(angle);
+        
+        this.sendRobotToClient({dist: 0, angle: angle});
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -165,7 +173,7 @@ export class InterpreterVisitor implements RoboMLVisitor {
         return distance;
     }
 
-    private sendRobotToClient(): void {
-        wsServer.emitRobot(this.robot);
+    private sendRobotToClient({dist, angle}: {dist: number, angle: number}): void {
+        wsServer.emitRobot({dist, angle});
     }
 }
