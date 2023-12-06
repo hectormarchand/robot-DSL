@@ -1,4 +1,3 @@
-import { Unit } from "../generated/ast.js";
 import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison, Condition, ConstantBooleanValue, Fn, FunctionCall, GetDistance, GetSpeed, GetTimestamp, GoBackward, GoForward, Loop, Model, NumberLiteral, Print, RoboMLVisitor, SetSpeed, TurnLeft, TurnRight, VariableCall, VariableDeclaration, VariableRedeclaration, acceptNode } from "../visitor.js";
 
 export class CompilerVisitor implements RoboMLVisitor {
@@ -6,7 +5,70 @@ export class CompilerVisitor implements RoboMLVisitor {
     private codeCompiled: string;
 
     constructor() {
-        this.codeCompiled = "";
+        this.codeCompiled = `
+        #include <PinChangeInt.h>
+        #include <PinChangeIntConfig.h>
+        #include <EEPROM.h>
+        #define _NAMIKI_MOTOR	 //for Namiki 22CL-103501PG80:1
+        #include <fuzzy_table.h>
+        #include <PID_Beta6.h>
+        #include <MotorWheel.h>
+        #include <Omni4WD.h>
+        
+        //#include <fuzzy_table.h>
+        //#include <PID_Beta6.h>
+        
+        /*
+        
+                    \                    /
+           wheel1   \                    /   wheel4
+           Left     \                    /   Right
+        
+        
+                                      power switch
+        
+                    /                    \
+           wheel2   /                    \   wheel3
+           Right    /                    \   Left
+        
+        */
+        
+        /*
+          irqISR(irq1,isr1);
+          MotorWheel wheel1(5,4,12,13,&irq1);
+        
+          irqISR(irq2,isr2);
+          MotorWheel wheel2(6,7,14,15,&irq2);
+        
+          irqISR(irq3,isr3);
+          MotorWheel wheel3(9,8,16,17,&irq3);
+        
+          irqISR(irq4,isr4);
+          MotorWheel wheel4(10,11,18,19,&irq4);
+        */
+        
+        irqISR(irq1, isr1);
+        MotorWheel wheel1(3, 2, 4, 5, &irq1);
+        
+        irqISR(irq2, isr2);
+        MotorWheel wheel2(11, 12, 14, 15, &irq2);
+        
+        irqISR(irq3, isr3);
+        MotorWheel wheel3(9, 8, 16, 17, &irq3);
+        
+        irqISR(irq4, isr4);
+        MotorWheel wheel4(10, 7, 18, 19, &irq4);
+        
+        
+        Omni4WD Omni(&wheel1, &wheel2, &wheel3, &wheel4);
+        
+        void setup() {
+          //TCCR0B=TCCR0B&0xf8|0x01;    // warning!! it will change millis()
+          TCCR1B = TCCR1B & 0xf8 | 0x01; // Pin9,Pin10 PWM 31250Hz
+          TCCR2B = TCCR2B & 0xf8 | 0x01; // Pin3,Pin11 PWM 31250Hz
+        
+          Omni.PIDEnable(0.31, 0.01, 0, 10);
+        }`
     }
 
 
@@ -21,40 +83,40 @@ export class CompilerVisitor implements RoboMLVisitor {
         if (node.name === "entry") {
             return "void loop() {\n" + acceptNode(node.block, this) + "}\n";
         } else {
-            return "void "+node.name+"() {\n" + acceptNode(node.block, this) + "}\n";
+            return "void " + node.name + "() {\n" + acceptNode(node.block, this) + "}\n";
         }
     }
     visitFunctionCall(node: FunctionCall) {
         if (!node.functionName.ref) {
             throw new Error("function ref is undefined");
         }
-        return node.functionName.ref.name+"();\n";
+        return node.functionName.ref.name + "();\n";
     }
     visitCondition(node: Condition) {
-        return "if (" + acceptNode(node.be,this)+") {\n" + acceptNode(node.block, this) +"}\n";
+        return "if (" + acceptNode(node.be, this) + ") {\n" + acceptNode(node.block, this) + "}\n";
     }
     visitGoBackward(node: GoBackward) {
-        return "goBackward(-" + acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
+        return "Omni.setCarBackoff(" + acceptNode(node.distance, this) + ");\n";
     }
     visitGoForward(node: GoForward) {
-        return "goForward(" + acceptNode(node.distance, this)+","+this.getUnit(node.unit)+");\n";
+        return "Omni.setCarAdvance(" + acceptNode(node.distance, this) + ");\n";
     }
     visitLoop(node: Loop) {
-        return "while ("+acceptNode(node.be, this)+")" +" {\n" + acceptNode(node.block, this) + "}\n";
+        return "while (" + acceptNode(node.be, this) + ")" + " {\n" + acceptNode(node.block, this) + "}\n";
     }
     visitModel(node: Model) {
         for (let fn of node.fn) {
-            this.codeCompiled+= acceptNode(fn, this) + "\n";
+            this.codeCompiled += acceptNode(fn, this) + "\n";
         }
     }
     visitSetSpeed(node: SetSpeed) {
-        return "setSpeed(" + acceptNode(node.speed,this)+","+this.getUnit(node.unit)+");\n";
+        return "Omni.setCarSpeedMMPS(" + acceptNode(node.speed, this) + ");\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        this.codeCompiled+="turnLeft("+acceptNode(node.angle,this)+");\n";
+        this.codeCompiled += "turnLeft(" + acceptNode(node.angle, this) + ");\n";
     }
     visitTurnRight(node: TurnRight) {
-        this.codeCompiled+="turnRight("+acceptNode(node.angle,this)+");\n";
+        this.codeCompiled += "turnRight(" + acceptNode(node.angle, this) + ");\n";
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -63,24 +125,24 @@ export class CompilerVisitor implements RoboMLVisitor {
         return node.variableCall.ref.name;
     }
     visitVariableDeclaration(node: VariableDeclaration) {
-        return "int "+node.name+" = " + acceptNode(node.expression, this)+";\n";
+        return "int " + node.name + " = " + acceptNode(node.expression, this) + ";\n";
     }
     visitVariableRedeclaration(node: VariableRedeclaration) {
         if (!node.variableName.ref) {
             throw new Error("variable ref is undefined");
         }
-        return node.variableName.ref.name+" = " + acceptNode(node.expression, this)+";\n";
+        return node.variableName.ref.name + " = " + acceptNode(node.expression, this) + ";\n";
     }
     visitBinaryArithmeticExpression(node: BinaryArithmeticExpression) {
         switch (node.operator) {
             case '+':
-                return acceptNode(node.left, this)+" + " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " + " + acceptNode(node.right, this) + "\n";
             case '-':
-                return acceptNode(node.left, this)+" - " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " - " + acceptNode(node.right, this) + "\n";
             case '*':
-                return acceptNode(node.left, this)+" * " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " * " + acceptNode(node.right, this) + "\n";
             case '/':
-                return acceptNode(node.left, this)+" / " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " / " + acceptNode(node.right, this) + "\n";
             default:
                 throw new Error("operator not implemented");
         }
@@ -88,9 +150,9 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitBinaryBooleanExpression(node: BinaryBooleanExpression) {
         switch (node.operator) {
             case 'and':
-                return acceptNode(node.left, this)+" && " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " && " + acceptNode(node.right, this) + "\n";
             case 'or':
-                return acceptNode(node.left, this)+" || " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " || " + acceptNode(node.right, this) + "\n";
             default:
                 throw new Error("operator not implemented");
         }
@@ -98,26 +160,26 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitComparison(node: Comparison) {
         switch (node.operator) {
             case '!=':
-                return acceptNode(node.left, this)+" != " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " != " + acceptNode(node.right, this) + "\n";
             case '==':
-                return acceptNode(node.left, this)+" == " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " == " + acceptNode(node.right, this) + "\n";
             case '<':
-                return acceptNode(node.left, this)+" < " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " < " + acceptNode(node.right, this) + "\n";
             case '<=':
-                return acceptNode(node.left, this)+" <= " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " <= " + acceptNode(node.right, this) + "\n";
             case '>':
-                return acceptNode(node.left, this)+" > " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " > " + acceptNode(node.right, this) + "\n";
             case '>=':
-                return acceptNode(node.left, this)+" >= " + acceptNode(node.right, this)+"\n";
+                return acceptNode(node.left, this) + " >= " + acceptNode(node.right, this) + "\n";
             default:
                 throw new Error("operator not implemented")
         }
     }
     visitPrint(node: Print) {
         if (node.expression) {
-            return "Serial.println(" + acceptNode(node.expression, this)+");\n";
+            return "Serial.println(" + acceptNode(node.expression, this) + ");\n";
         } else if (node.str) {
-            return "Serial.println("+node.str+");\n";
+            return "Serial.println(" + node.str + ");\n";
         } else {
             throw new Error("print statement not implemented");
         }
@@ -130,31 +192,31 @@ export class CompilerVisitor implements RoboMLVisitor {
         }
     }
     visitGetSpeed(node: GetSpeed) {
-        return "getSpeed()";
+        return "Omni.getCarSpeedMMPS()";
     }
     visitGetDistance(node: GetDistance) {
         return "getDistance()";
     }
     visitGetTimestamp(node: GetTimestamp) {
-        return "millis()"; 
+        return "millis()";
     }
     visitNumberLiteral(node: NumberLiteral) {
         return node.value.toString();
     }
 
 
-    private getUnit(unit: Unit): string {
-        switch (unit) {
-            case "cm":
-                return "cm";
-                break;
-            case "mm":
-                return "mm";
-                break;
-            default:
-                return "mm"
-        }
-    }
+    // private getUnit(unit: Unit): string {
+    //     switch (unit) {
+    //         case "m":
+    //             return "m";
+    //         case "cm":
+    //             return "cm";
+    //         case  "mm":
+    //             return "mm";
+    //         default:
+    //             throw new Error("Unit not supported");
+    //     }
+    // }
 
     public getCodeCompiled(): string {
         return this.codeCompiled;
