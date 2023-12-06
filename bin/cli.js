@@ -1,6 +1,6 @@
 import { exit } from 'process';
 import '../out/cli/main.js';
-import { generateAST, visitFile } from '../out/cli/main.js';
+import { generateAST, visitFile, compileCode } from '../out/cli/main.js';
 
 const args = process.argv;
 
@@ -19,6 +19,10 @@ switch (command) {
     case "interpret":
         file = args[3];
         await visitFile(file);
+        break;
+    case "compile":
+        file = args[3];
+        await compileCode(file);
         break;
     default:
         console.error(`No command with name ${command}`);

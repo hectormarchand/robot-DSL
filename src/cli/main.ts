@@ -7,6 +7,7 @@ import { extractAstNode } from './cli-util.js';
 import { generateJavaScript, writeAst } from './generator.js';
 import { NodeFileSystem } from 'langium/node';
 import { interpret } from '../semantic/interpreter.js';
+import { compile } from '../semantic/compiler.js';
 import { createDocumentFromString } from '../web/websocket/utils.js';
 import { wsServer } from '../web/app.js';
 
@@ -28,6 +29,12 @@ export const visitFile = async (fileName: string): Promise<void> => {
     const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
     const model = await extractAstNode<Model>(fileName, services);
     interpret(model);
+}
+
+export const compileCode = async (fileName: string): Promise<void> => {
+    const services = createRobotLanguageServices(NodeFileSystem).RobotLanguage;
+    const model = await extractAstNode<Model>(fileName, services);
+    compile(model);
 }
 
 export const parseAndValidate = async (code: string): Promise<void> => {
