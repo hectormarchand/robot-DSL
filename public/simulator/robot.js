@@ -22,27 +22,28 @@ class Robot {
         const h = (Math.sqrt(3)/2) * (this.width/3)
         triangle(-0.5*h, -(this.height/6), -0.5*h, this.height/6, 0.5*h, 0);
         pop();
-
-        
     }
   
     turn(angle){
         console.log("turning ", angle);
         this.angle += angle;
         if(this.angle<0){
-            this.angle += 360;
-        } else if (this.angle >= 360){
-            this.angle -= 360;
+            this.angle += 2 * Math.PI;
+        } else if (this.angle >= 2 * Math.PI){
+            this.angle -= 2 * Math.PI;
         }
-        this.angle *= Math.PI / 180;
     }
 
     move(dist){
         console.log("moving", dist);
         let anglecos = cos(this.angle);
         let anglesin = sin(this.angle);
+        const previous_x = this.x;
+        const previous_y = this.y;
         this.x += anglecos*dist;
         this.y += anglesin*dist;
+
+        new Line(previous_x, previous_y, this.x, this.y);
     }
 
     side(dist){
