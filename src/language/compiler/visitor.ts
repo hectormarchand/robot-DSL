@@ -2,10 +2,10 @@ import { BinaryArithmeticExpression, BinaryBooleanExpression, Block, Comparison,
 
 export class CompilerVisitor implements RoboMLVisitor {
 
-    private codeCompiled: string;
+    private codeTemplate: string;
 
     constructor() {
-        this.codeCompiled = `
+        this.codeTemplate = `
         #include <PinChangeInt.h>
         #include <PinChangeIntConfig.h>
         #include <EEPROM.h>
@@ -104,19 +104,21 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitLoop(node: Loop) {
         return "while (" + acceptNode(node.be, this) + ")" + " {\n" + acceptNode(node.block, this) + "}\n";
     }
-    visitModel(node: Model) {
+    visitModel(node: Model): string {
+        let builder: string = this.codeTemplate;
         for (let fn of node.fn) {
-            this.codeCompiled += acceptNode(fn, this) + "\n";
+            builder += acceptNode(fn, this) + "\n";
         }
+        return builder;
     }
     visitSetSpeed(node: SetSpeed) {
         return "Omni.setCarSpeedMMPS(" + acceptNode(node.speed, this) + ");\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        this.codeCompiled += "turnLeft(" + acceptNode(node.angle, this) + ");\n";
+        return "Omni.setCarRotateLeft(" + acceptNode(node.angle, this) + ");\n";
     }
     visitTurnRight(node: TurnRight) {
-        this.codeCompiled += "turnRight(" + acceptNode(node.angle, this) + ");\n";
+        return "Omni.setCarRotateRight(" + acceptNode(node.angle, this) + ");\n";
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -217,8 +219,4 @@ export class CompilerVisitor implements RoboMLVisitor {
     //             throw new Error("Unit not supported");
     //     }
     // }
-
-    public getCodeCompiled(): string {
-        return this.codeCompiled;
-    }
 }
