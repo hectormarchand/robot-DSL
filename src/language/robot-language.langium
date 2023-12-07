@@ -23,7 +23,8 @@ Loop:
     'loop' be=BooleanExpression block=Block;
 
 Condition:
-    'if' be=BooleanExpression block=Block;
+    'if' be=BooleanExpression block=Block
+    ('else' elseBlock=Block)?;
 
 
 VariableDeclaration:

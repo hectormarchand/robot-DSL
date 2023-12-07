@@ -38,6 +38,8 @@ export class InterpreterVisitor implements RoboMLVisitor {
     visitCondition(node: Condition) {
         if (acceptNode(node.be, this)) {
             return acceptNode(node.block, this);
+        } else if (node.elseBlock){
+            return acceptNode(node.elseBlock, this);
         }
     }
     async visitGoBackward(node: GoBackward) {

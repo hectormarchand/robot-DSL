@@ -73,16 +73,19 @@ export class Condition implements ASTInterfaces.Condition {
     $type: 'Condition';
     be: ASTInterfaces.Expression; // boolean expression
     block: ASTInterfaces.Block;
+    elseBlock?: ASTInterfaces.Block | undefined;
 
     constructor(
         container: ASTInterfaces.Block,
         be: ASTInterfaces.Expression,
-        block: ASTInterfaces.Block
+        block: ASTInterfaces.Block,
+        elseBlock: ASTInterfaces.Block | undefined
     ) {
         this.$container = container;
         this.$type = "Condition";
         this.be = be;
         this.block = block;
+        this.elseBlock = elseBlock;
     }
 
     accept(visitor: RoboMLVisitor): any {
