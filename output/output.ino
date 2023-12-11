@@ -53,7 +53,37 @@
         
         
         Omni4WD Omni(&wheel1, &wheel2, &wheel3, &wheel4);
+
+        unsigned int __SPEED__ = 100;
+
+        void __move_forward__(int value) {
+            Omni.setCarAdvance(__SPEED__);
+            Omni.delayMS(value * 1000 / __SPEED__);
+        }
+
+        void __move_backward__(int value) {
+            Omni.setCarBackoff(__SPEED__);
+            Omni.delayMS(value * 1000 / __SPEED__);
+        }
         
+        void __turn_right__(int angle) {
+            Omni.setCarRotateRight(__SPEED__);
+            Omni.delayMS(angle * 1000 / __SPEED__);
+        }
+
+        void __turn_left__(int angle) {
+            Omni.setCarRotateLeft(__SPEED__);
+            Omni.delayMS(angle * 1000 / __SPEED__);
+        }
+
+        void ___set_speed___(int speed) {
+            __SPEED__ = speed;
+        }
+
+        int __get_speed__() {
+            return __SPEED__;
+        }
+
         void setup() {
           //TCCR0B=TCCR0B&0xf8|0x01;    // warning!! it will change millis()
           TCCR1B = TCCR1B & 0xf8 | 0x01; // Pin9,Pin10 PWM 31250Hz
@@ -64,14 +94,14 @@
 int nb_square = 1;
 while (nb_square <= 4
 ) {
-Omni.setCarAdvance(150);
-Omni.setCarRotateRight(90);
-Omni.setCarAdvance(150);
-Omni.setCarRotateRight(90);
-Omni.setCarAdvance(150);
-Omni.setCarRotateRight(90);
-Omni.setCarAdvance(150);
-Omni.setCarRotateRight(90);
+__move_forward__(150);
+__turn_right__(90);
+__move_forward__(150);
+__turn_right__(90);
+__move_forward__(150);
+__turn_right__(90);
+__move_forward__(150);
+__turn_right__(90);
 nb_square = nb_square + 1
 ;
 }

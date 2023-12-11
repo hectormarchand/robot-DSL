@@ -61,7 +61,37 @@ export class CompilerVisitor implements RoboMLVisitor {
         
         
         Omni4WD Omni(&wheel1, &wheel2, &wheel3, &wheel4);
+
+        unsigned int __SPEED__ = 100;
+
+        void __move_forward__(int value) {
+            Omni.setCarAdvance(__SPEED__);
+            Omni.delayMS(value * 1000 / __SPEED__);
+        }
+
+        void __move_backward__(int value) {
+            Omni.setCarBackoff(__SPEED__);
+            Omni.delayMS(value * 1000 / __SPEED__);
+        }
         
+        void __turn_right__(int angle) {
+            Omni.setCarRotateRight(__SPEED__);
+            Omni.delayMS(angle * 1000 / __SPEED__);
+        }
+
+        void __turn_left__(int angle) {
+            Omni.setCarRotateLeft(__SPEED__);
+            Omni.delayMS(angle * 1000 / __SPEED__);
+        }
+
+        void ___set_speed___(int speed) {
+            __SPEED__ = speed;
+        }
+
+        int __get_speed__() {
+            return __SPEED__;
+        }
+
         void setup() {
           //TCCR0B=TCCR0B&0xf8|0x01;    // warning!! it will change millis()
           TCCR1B = TCCR1B & 0xf8 | 0x01; // Pin9,Pin10 PWM 31250Hz
@@ -96,10 +126,10 @@ export class CompilerVisitor implements RoboMLVisitor {
         return "if (" + acceptNode(node.be, this) + ") {\n" + acceptNode(node.block, this) + "}\n";
     }
     visitGoBackward(node: GoBackward) {
-        return "Omni.setCarBackoff(" + acceptNode(node.distance, this) + ");\n";
+        return "__move_backward__(" + acceptNode(node.distance, this) + ");\n";
     }
     visitGoForward(node: GoForward) {
-        return "Omni.setCarAdvance(" + acceptNode(node.distance, this) + ");\n";
+        return "__move_forward__(" + acceptNode(node.distance, this) + ");\n";
     }
     visitLoop(node: Loop) {
         return "while (" + acceptNode(node.be, this) + ")" + " {\n" + acceptNode(node.block, this) + "}\n";
@@ -112,13 +142,13 @@ export class CompilerVisitor implements RoboMLVisitor {
         return builder;
     }
     visitSetSpeed(node: SetSpeed) {
-        return "Omni.setCarSpeedMMPS(" + acceptNode(node.speed, this) + ");\n";
+        return "__set_speed__(" + acceptNode(node.speed, this) + ");\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        return "Omni.setCarRotateLeft(" + acceptNode(node.angle, this) + ");\n";
+        return "__turn_left__(" + acceptNode(node.angle, this) + ");\n";
     }
     visitTurnRight(node: TurnRight) {
-        return "Omni.setCarRotateRight(" + acceptNode(node.angle, this) + ");\n";
+        return "__turn_right__(" + acceptNode(node.angle, this) + ");\n";
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -194,13 +224,13 @@ export class CompilerVisitor implements RoboMLVisitor {
         }
     }
     visitGetSpeed(node: GetSpeed) {
-        return "Omni.getCarSpeedMMPS()";
+        return "__get_speed_();";
     }
     visitGetDistance(node: GetDistance) {
-        return "getDistance()";
+        return "getDistance();";
     }
     visitGetTimestamp(node: GetTimestamp) {
-        return "millis()";
+        return "millis();";
     }
     visitNumberLiteral(node: NumberLiteral) {
         return node.value.toString();

@@ -3,6 +3,7 @@ import { Model as VisitorModel } from "../language/visitor.js";
 import { CompilerVisitor } from "../language/compiler/visitor.js";
 import path from "path";
 import fs from "fs";
+import { exec } from 'child_process';
 
 export function compile(model: Model): void {
     const visitor = new CompilerVisitor();
@@ -26,5 +27,19 @@ export function compile(model: Model): void {
         } else {
             console.log("The file was saved!");
         }
+    });
+
+    const command = "sudo arduino-cli compile -b arduino:avr:diecimila -u -p /dev/ttyUSB0 --libraries \"src/language/compiler/lib\" output/"
+
+    exec(command, (error: any, stdout: any, stderr: any) => {
+        if (error) {
+          console.error(`Error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.error(`stderr: ${stderr}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
     });
 }
