@@ -49,3 +49,23 @@ The compile command above will compile the .rob code into .ino and automatically
 3. plug the robot to your computer
 4. Click *Croquis > Vérifier/Compiler*
 5. Click *Croquis > Téléverser*
+
+
+
+## Choix d'implémentation
+
+### Grammaire
+
+Nous avons voulu créer une grammaire avec une syntaxe plutôt simple. Le programme est composé de fonctions qui sont elle-mêmes composées de statements. Les fonctions sont déclarées en utilisant le mot clé ```def``` et les variables sont déclarées en utilisant le mot clé ```var```.
+Le language Rob n'est pas un language typé. Pour créer l'équivalent des boucles while en C, il faut utiliser le mot clé ```loop```. Le language Rob supporte les expressions arithmetics et booléennes.
+Pour récupérer les données des différents capteurs, voici les commandes que vous pouvez utiliser :
+```javascript
+var distance_value = get_distance
+var speed_value = get_speed
+var time = get_timestamp
+```
+
+Et voici un exemple de programme Rob :
+```javascript
+
+```
