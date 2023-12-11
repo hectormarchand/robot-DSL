@@ -12,7 +12,6 @@ function draw() {
   background(0);
   stroke(255);
   strokeWeight(1);
-  console.log("draw all scene")
 
   for (var e = 0; e < window.entities.length; e++) {
     window.entities[e].show();

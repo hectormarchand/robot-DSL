@@ -31,12 +31,10 @@ export function sendParseAndValidate(codeToParse) {
 
 webSocket.onmessage = (event) => {
     const message = JSON.parse(event.data);
-    console.log("message recu : " + message);
 
     switch (message.type) {
         case "robot":
             const robotData = message.data;
-            console.log("robot :", window.p5robot);
             window.p5robot.turn(robotData.angle);
             window.p5robot.move(robotData.dist);
             break;

@@ -532,7 +532,6 @@ export class NumberLiteral implements ASTInterfaces.NumberLiteral {
 
 
 export function acceptNode(node: AstNode, visitor: RoboMLVisitor): any {
-    console.log("-->", node.$type);
     switch (node.$type) {
         case 'Block':
             return (node as Block).accept(visitor);

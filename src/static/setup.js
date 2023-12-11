@@ -25,12 +25,16 @@ let code = `def entry() {
 def octogone() {
     var cote = 1
 
-    loop cote <= 7 {
-        forward 500 m
+    loop cote <= 8 {
+        var distance_parcourue = 0
+        loop distance_parcourue < 500 {
+            forward 1 m
+            distance_parcourue = distance_parcourue + 1
+        }
         turn_left 45
         cote = cote + 1
     }
-    forward 500 m
+    turn_right 45
 }`
 
 editorConfig.setMainCode(code);
