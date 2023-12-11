@@ -18,6 +18,8 @@ export class InterpreterVisitor implements RoboMLVisitor {
         //this.robot = new Robot(new Vector(100, 100), new Vector(20, 20), 0, 0, new BaseScene());
         this.variables = new Map<string, Expression>();
         this.wait = false;
+
+        this.sendSceneToClient(this.scene);
     }
 
 
@@ -159,18 +161,20 @@ export class InterpreterVisitor implements RoboMLVisitor {
 
         if (poi) {
             const dist: number = poi.distanceTo(this.robot.pos);
-            console.log("dis t :", dist);
             return dist;
         }
         return 100000;
     }
     visitGetTimestamp(node: GetTimestamp) {
-        return 0;
+        return this.scene.timestamps[0].time;
     }
     visitNumberLiteral(node: NumberLiteral) {
         return node.value;
     }
 
+    getScene(): Scene {
+        return this.scene;
+    }
 
     private toMeters(distance: number, unit: Unit): number {
         switch (unit) {
@@ -187,5 +191,9 @@ export class InterpreterVisitor implements RoboMLVisitor {
 
     private sendRobotToClient({dist, angle}: {dist: number, angle: number}): void {
         wsServer.emitRobot({dist, angle});
+    }
+
+    private sendSceneToClient(scene: Scene): void {
+        wsServer.emitScene(this.scene);
     }
 }

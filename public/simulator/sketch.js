@@ -12,6 +12,7 @@ function draw() {
   background(0);
   stroke(255);
   strokeWeight(1);
+  console.log("draw all scene")
 
   for (var e = 0; e < window.entities.length; e++) {
     window.entities[e].show();
@@ -19,7 +20,7 @@ function draw() {
 
   if(window.scene !== null && window.scene.timestamps.length > lastTimestamp + 1){
     time += deltaTime
-    updateRobot();
+    //updateRobot();
   }
 
   if(window.p5robot !== null){

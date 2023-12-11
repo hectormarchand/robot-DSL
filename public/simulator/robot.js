@@ -43,7 +43,11 @@ class Robot {
         this.x += anglecos*dist;
         this.y += anglesin*dist;
 
-        new Line(previous_x, previous_y, this.x, this.y);
+        // Add a line only if the robot has moved
+        if (previous_x != this.x || previous_y != this.y) {
+            window.entities.push(new Line(previous_x, previous_y, this.x, this.y));
+        }
+        
     }
 
     side(dist){

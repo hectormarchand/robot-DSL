@@ -1,9 +1,21 @@
 def entry() {
-    var v1 = 0
+    var nb_square = 1
 
-    if v1 > 5 {
-        print "superieur"
-    } else {
-        print  "inferieur"
+    loop nb_square <= 4 {
+        forward 150 m
+        turn_right 90
+        forward 150 m
+        turn_right 90
+        forward 150 m
+        turn_right 90
+        forward 150 m
+        turn_right 90
+
+        nb_square = nb_square + 1 
     }
+}
+
+
+def print_something() {
+    print "Hello World"
 }

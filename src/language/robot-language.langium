@@ -30,14 +30,16 @@ Condition:
 VariableDeclaration:
     'var' name=ID '=' expression=Expression;
 
+type VariableOrParameter = DeclaredParameter | VariableDeclaration;
+
 VariableRedeclaration:
-    variableName=[VariableDeclaration:ID] '=' expression=Expression;
+    variableName=[VariableOrParameter:ID] '=' expression=Expression;
 
 Expression:
     ArithmeticExpression | BooleanExpression;
 
 VariableCall:
-    variableCall=[VariableDeclaration:ID];
+    variableCall=[VariableOrParameter:ID];
 
 FunctionCall:
     functionName=[Fn:ID] '(' (args+=Expression (',' args+=Expression)*)? ')';

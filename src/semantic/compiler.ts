@@ -13,13 +13,13 @@ export function compile(model: Model): void {
     const currentFilePath = new URL(import.meta.url).pathname;
     let currentDir = path.dirname(currentFilePath);
     // remove first character if it is '/'
-    // if (currentDir.charAt(0) == '/') {
-    //     currentDir = currentDir.slice(1);
-    // }
+    if (process.platform === "win32" && currentDir.charAt(0) == '/') {
+        currentDir = currentDir.slice(1);
+    }
 
     console.log(currentDir);
     // create .ino file
-    const filePath = path.join(currentDir, '../../robot.ino');
+    const filePath = path.join(currentDir, '../../output/output.ino');
     fs.writeFile(filePath, compiledCode, function (err: any) {
         if (err) {
             console.log(err);

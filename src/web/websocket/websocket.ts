@@ -3,6 +3,8 @@ import { parseAndValidate } from "../../cli/main.js";
 import { Model } from "../../language/visitor.js";
 import { interpret } from "../../semantic/interpreter.js";
 import { createAstFromString } from "./utils.js";
+import { Scene } from "../simulator/scene.js";
+import { InterpreterVisitor } from "../../language/interpreter/visitor.js";
 
 export const SOCKET_URL = 'ws://localhost:3000';
 
@@ -21,6 +23,9 @@ export class WebSocketReceiver {
             ws.onerror = this.onSocketError;
 
             ws.onmessage = this.onMessageReceived;
+
+            //send the entire scene to the client
+            this.emitScene(new InterpreterVisitor().getScene());
         })
     }
 
@@ -69,6 +74,21 @@ export class WebSocketReceiver {
         const payload = {
             type: "robot",
             data: data
+        }
+
+        this.currentWS.send(JSON.stringify(payload));
+    }
+
+    public emitScene(scene: Scene): void {
+        if (!this.currentWS) {
+            return ;
+        }
+
+        const payload = {
+            type: "scene",
+            data: {
+                scene: scene
+            }
         }
 
         this.currentWS.send(JSON.stringify(payload));

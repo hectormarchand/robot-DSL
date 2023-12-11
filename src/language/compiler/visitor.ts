@@ -81,7 +81,7 @@ export class CompilerVisitor implements RoboMLVisitor {
     }
     visitFn(node: Fn) {
         if (node.name === "entry") {
-            return "void loop() {\n" + acceptNode(node.block, this) + "}\n";
+            return "void loop() {\n" + acceptNode(node.block, this) + "return; \n}\n";
         } else {
             return "void " + node.name + "() {\n" + acceptNode(node.block, this) + "}\n";
         }
@@ -181,7 +181,7 @@ export class CompilerVisitor implements RoboMLVisitor {
         if (node.expression) {
             return "Serial.println(" + acceptNode(node.expression, this) + ");\n";
         } else if (node.str) {
-            return "Serial.println(" + node.str + ");\n";
+            return "Serial.println(\"" + node.str + "\");\n";
         } else {
             throw new Error("print statement not implemented");
         }

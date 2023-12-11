@@ -14,23 +14,26 @@ editorConfig.setMainLanguageId('robot-language');
 editorConfig.setMonarchTokensProvider(monarchSyntax);
 
 let code = `def entry() {
-    set_speed 10 cm
-    square()
+    var nb_octogone = 1
+
+    loop nb_octogone <= 8 {
+        octogone()
+        nb_octogone = nb_octogone + 1
+    }    
 }
 
-def square() {
-    forward 150 m
-    turn_left 90
-    forward 150 m
-    turn_left 90
-    forward 150 m
-    turn_left 90
-    forward 150 m
-    turn_left 90
+def octogone() {
+    var cote = 1
+
+    loop cote <= 7 {
+        forward 500 m
+        turn_left 45
+        cote = cote + 1
+    }
+    forward 500 m
 }`
 
 editorConfig.setMainCode(code);
-wrapper.
 
 editorConfig.theme = 'vs-dark';
 editorConfig.useLanguageClient = true;
@@ -99,8 +102,11 @@ const setupSimulator = (scene) => {
         scene.robot.size.y * factor,
         scene.robot.rad
     );
+
+   // window.entities.push(new Line(500, 500, 550, 500));
 }
 
+window.setupSimulator = setupSimulator;
 window.execute = execute;
 window.typecheck = typecheck;
 window.parseAndValidate = parseAndValidate;
