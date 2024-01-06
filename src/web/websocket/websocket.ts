@@ -99,9 +99,9 @@ export class WebSocketReceiver {
             return ;
         }
         if (success) {
-            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Parsed and validated successfully!"}));
+            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Parsed and validated successfully!", success: success}));
         } else {
-            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Failed to parse and validate!"}));
+            this.currentWS.send(JSON.stringify({type:"parseAndValidate", text:"Failed to parse and validate!", success: success}));
         }
     }
 }

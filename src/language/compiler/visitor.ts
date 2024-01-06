@@ -105,13 +105,13 @@ export class CompilerVisitor implements RoboMLVisitor {
     visitBlock(node: Block) {
         let res = "";
         for (let statement of node.statements) {
-            res += acceptNode(statement, this);
+            res += acceptNode(statement, this) + ";";
         }
         return res;
     }
     visitFn(node: Fn) {
         if (node.name === "entry") {
-            return "void loop() {\n" + acceptNode(node.block, this) + "return; \n}\n";
+            return "void loop() {\n" + acceptNode(node.block, this) + "\n}\n";
         } else {
             return "void " + node.name + "() {\n" + acceptNode(node.block, this) + "}\n";
         }
@@ -120,16 +120,16 @@ export class CompilerVisitor implements RoboMLVisitor {
         if (!node.functionName.ref) {
             throw new Error("function ref is undefined");
         }
-        return node.functionName.ref.name + "();\n";
+        return node.functionName.ref.name + "()\n";
     }
     visitCondition(node: Condition) {
         return "if (" + acceptNode(node.be, this) + ") {\n" + acceptNode(node.block, this) + "}\n";
     }
     visitGoBackward(node: GoBackward) {
-        return "__move_backward__(" + acceptNode(node.distance, this) + ");\n";
+        return "__move_backward__(" + acceptNode(node.distance, this) + ")\n";
     }
     visitGoForward(node: GoForward) {
-        return "__move_forward__(" + acceptNode(node.distance, this) + ");\n";
+        return "__move_forward__(" + acceptNode(node.distance, this) + ")\n";
     }
     visitLoop(node: Loop) {
         return "while (" + acceptNode(node.be, this) + ")" + " {\n" + acceptNode(node.block, this) + "}\n";
@@ -142,13 +142,13 @@ export class CompilerVisitor implements RoboMLVisitor {
         return builder;
     }
     visitSetSpeed(node: SetSpeed) {
-        return "__set_speed__(" + acceptNode(node.speed, this) + ");\n";
+        return "__set_speed__(" + acceptNode(node.speed, this) + ")\n";
     }
     visitTurnLeft(node: TurnLeft) {
-        return "__turn_left__(" + acceptNode(node.angle, this) + ");\n";
+        return "__turn_left__(" + acceptNode(node.angle, this) + ")\n";
     }
     visitTurnRight(node: TurnRight) {
-        return "__turn_right__(" + acceptNode(node.angle, this) + ");\n";
+        return "__turn_right__(" + acceptNode(node.angle, this) + ")\n";
     }
     visitVariableCall(node: VariableCall) {
         if (!node.variableCall.ref) {
@@ -157,13 +157,13 @@ export class CompilerVisitor implements RoboMLVisitor {
         return node.variableCall.ref.name;
     }
     visitVariableDeclaration(node: VariableDeclaration) {
-        return "int " + node.name + " = " + acceptNode(node.expression, this) + ";\n";
+        return "int " + node.name + " = " + acceptNode(node.expression, this) + "\n";
     }
     visitVariableRedeclaration(node: VariableRedeclaration) {
         if (!node.variableName.ref) {
             throw new Error("variable ref is undefined");
         }
-        return node.variableName.ref.name + " = " + acceptNode(node.expression, this) + ";\n";
+        return node.variableName.ref.name + " = " + acceptNode(node.expression, this) + "\n";
     }
     visitBinaryArithmeticExpression(node: BinaryArithmeticExpression) {
         switch (node.operator) {
@@ -209,9 +209,9 @@ export class CompilerVisitor implements RoboMLVisitor {
     }
     visitPrint(node: Print) {
         if (node.expression) {
-            return "Serial.println(" + acceptNode(node.expression, this) + ");\n";
+            return "Serial.println(" + acceptNode(node.expression, this) + ")\n";
         } else if (node.str) {
-            return "Serial.println(\"" + node.str + "\");\n";
+            return "Serial.println(\"" + node.str + "\")\n";
         } else {
             throw new Error("print statement not implemented");
         }
@@ -224,13 +224,13 @@ export class CompilerVisitor implements RoboMLVisitor {
         }
     }
     visitGetSpeed(node: GetSpeed) {
-        return "__get_speed_();";
+        return "__get_speed_()";
     }
     visitGetDistance(node: GetDistance) {
-        return "getDistance();";
+        return "getDistance()";
     }
     visitGetTimestamp(node: GetTimestamp) {
-        return "millis();";
+        return "millis()";
     }
     visitNumberLiteral(node: NumberLiteral) {
         return node.value.toString();

@@ -41,7 +41,15 @@ webSocket.onmessage = (event) => {
         case "scene":
             const scene = message.data.scene;
             window.setupSimulator(scene);
+            break;
         case "parseAndValidate":
+            if (message.success) {
+                document.getElementById("green-check").style.display = "block";
+                document.getElementById("red-cross").style.display = "none";
+            } else if (!message.success) {
+                document.getElementById("red-cross").style.display = "block";
+                document.getElementById("green-check").style.display = "none";
+            }
             console.log(message.text);
             break;
         default:

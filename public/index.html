@@ -13,10 +13,12 @@
     <body>
         <h1>Robot Language in Langium</h1>
         <div id="buttons">
-            <input class="build" type="button" value="Parse and Validate" onclick="window.parseAndValidate()">
-            <input class="build" type="button" value="Execute Simulation" onclick="window.execute()">
-            <input class="build" type="button" value="Restart Simulation" onclick="window.resetSimulation()">
-            <input class="build" type="button" value="Clear Data" onclick="window.setup()">
+            <input class="build parse" type="button" value="Parse and Validate" onclick="window.parseAndValidate()">
+            <span id="green-check" style="display: none; margin-top: 10px;">✅</span>
+            <span id="red-cross" style="display: none; margin-top: 10px;">❌</span>
+            <input class="build execute" type="button" value="Execute Simulation" onclick="window.execute()">
+            <input class="build restart" type="button" value="Restart Simulation" onclick="window.resetSimulation()">
+            <input class="build clear" type="button" value="Clear Data" onclick="window.setup()">
         </div>
 
         <div id="page-wrapper">

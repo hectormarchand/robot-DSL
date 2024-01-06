@@ -25,7 +25,6 @@ class Robot {
     }
   
     turn(angle){
-        console.log("turning ", angle);
         this.angle += angle;
         if(this.angle<0){
             this.angle += 2 * Math.PI;
@@ -35,7 +34,6 @@ class Robot {
     }
 
     move(dist){
-        console.log("moving", dist);
         let anglecos = cos(this.angle);
         let anglesin = sin(this.angle);
         const previous_x = this.x;
