@@ -2,10 +2,11 @@
 
 This repository explain how to use ou Rob laguage with its extension .rob.
 
-![](res/ecore.png)
-
 ## Rob Language Model
+
 This is our Ecore Model
+
+![](res/ecore.png)
 
 ## How to interpret
 
