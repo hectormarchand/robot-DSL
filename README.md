@@ -98,7 +98,7 @@ def octogone() {
 }
 ```
 
-### Interpréteur
+### Interpréteur (majeur)
 
 Après avoir implémenté les fonctions `accept` du visiteur pour chaque noeud de notre AST, nous avons écrit un petit script qui interprète un programme Rob.
 
